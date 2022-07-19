@@ -9,14 +9,14 @@ namespace MinecraftServer.Api.Utils
 {
     public static class Utils
     {
-        public static IEnumerable<ModPack> ObterModPacks()
+        public static IEnumerable<ModPackModel> ObterModPacks()
         {
             var modpacks = File.ReadAllText(Config.Config.CaminhoListaModPacks, Encoding.UTF8);
-            var modpack_json = JsonSerializer.Deserialize<IEnumerable<ModPack>>(modpacks);
+            var modpack_json = JsonSerializer.Deserialize<IEnumerable<ModPackModel>>(modpacks);
             return modpack_json;
         }
         
-        public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPack modpack)
+        public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPackModel modpack)
         {
             var caminho = Path.Combine(Config.Config.CaminhoModPacks, modpack.Directory);
 

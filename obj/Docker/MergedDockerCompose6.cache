@@ -1,0 +1,29 @@
+services:
+  minecraftserver.api:
+    build:
+      context: C:\Users\gedeo\source\repos\MinecraftServer.Api
+      dockerfile: MinecraftServer.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    image: minecraftserverapi
+    ports:
+    - published: 5000
+      target: 80
+    - target: 80
+  mongo:
+    container_name: mongo
+    image: mvertes/alpine-mongo
+    networks:
+      backend: {}
+    ports:
+    - published: 27017
+      target: 27017
+    restart: unless-stopped
+  redis_compose:
+    hostname: redis
+    image: redis
+    ports:
+    - published: 6379
+      target: 6379
+    restart: always
+version: '3.4'
