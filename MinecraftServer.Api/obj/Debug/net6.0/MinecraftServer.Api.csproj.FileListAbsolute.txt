@@ -30,8 +30,6 @@ C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\ne
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Launcher\config-launcher\modpacks.json
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Launcher\news-launcher\news-launcher.json
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Launcher\package.json
-C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Files\modpack-padrao\launcher_profiles.json
-C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Files\modpack-padrao\versions\1.12.2-forge-14.23.5.2860\1.12.2-forge-14.23.5.2860.json
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\NETCore.Encrypt.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\MinecraftServer.Api\bin\Debug\net6.0\DnsClient.dll

@@ -8,6 +8,11 @@ services:
         com.microsoft.visual-studio.project-name: MinecraftServer.Api
       target: base
     container_name: MinecraftServer.Api
+    depends_on:
+      mongo:
+        condition: service_started
+      redis_compose:
+        condition: service_started
     entrypoint: tail -f /dev/null
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -21,7 +26,12 @@ services:
         dotnet); then kill $$PID; fi"
       com.microsoft.visualstudio.debuggee.program: dotnet
       com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    links:
+    - mongo
+    - redis_compose
     ports:
+    - published: 5000
+      target: 80
     - target: 80
     tty: true
     volumes:
@@ -31,4 +41,18 @@ services:
     - C:\Users\gedeo\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
     - C:\Users\gedeo\.nuget\packages:/root/.nuget/packages:ro
     - C:\Users\gedeo\source\repos\MinecraftServer.Api:/src:rw
+  mongo:
+    container_name: mongo
+    image: mvertes/alpine-mongo
+    ports:
+    - published: 27017
+      target: 27017
+    restart: always
+  redis_compose:
+    hostname: redis
+    image: redis
+    ports:
+    - published: 6379
+      target: 6379
+    restart: always
 version: '3.4'

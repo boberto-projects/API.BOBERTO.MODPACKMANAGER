@@ -3,7 +3,7 @@ version: '3.4'
 services:
   minecraftserver.api:
     image: minecraftserverapi:dev
-    container_name: MinecraftServer.Api_1
+    container_name: MinecraftServer.Api
     build:
       target: base
       labels:
