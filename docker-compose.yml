@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  minecraftserver.api:
+    image: ${DOCKER_REGISTRY-}minecraftserverapi
+    ports: 
+    - "5000:80"
+    build:
+      context: .
+      dockerfile: MinecraftServer.Api/Dockerfile
+  redis_compose:
+    image: redis
+    restart: always
+    hostname: redis
+    ports:
+    - "6379:6379"

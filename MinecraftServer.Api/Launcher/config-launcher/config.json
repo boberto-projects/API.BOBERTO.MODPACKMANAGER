@@ -1,0 +1,12 @@
+{
+  "maintenance": "off",
+  "maintenance_message": "Servidor em manutenção",
+  "offline": "on",
+  "client_id": "",
+  "game_version": "1.12.2",
+  "custom": true,
+  "verify": false,
+  "java": true,
+  "dataDirectory": ".bobertolandia",
+  "ignored": ["options.txt","log"]
+}

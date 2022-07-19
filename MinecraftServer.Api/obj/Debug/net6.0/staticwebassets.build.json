@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "jHE1MYuCM/kPnrKadlwVOYEDoIO16mkFOY6wCm6s0r0=",
+  "Source": "MinecraftServer.Api",
+  "BasePath": "_content/MinecraftServer.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
