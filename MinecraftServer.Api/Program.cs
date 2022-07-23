@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using MinecraftServer.Api;
 using MinecraftServer.Api.Config;
 using MinecraftServer.Api.Models;
+using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MinecraftServer.Api.Utils;
+using System.Diagnostics;
+using System.IO.Compression;
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
@@ -40,15 +43,67 @@ app.MapGet("/modpack/{id}", (string id) =>
 {
     var modpack = Utils.ObterModPacks().First(e => e.Id.Equals(id));
     return Utils.ListarArquivosRecursivos(modpack);
-    //   return "OK";
 });
 
-app.MapPost("/modpack/add", async (ModPackModel request, [FromServices] MongoDBService mongoDbService) =>
+
+app.MapPost("/modpack/update/{id}", async (string id, [FromBody] Dictionary<string, object> request, [FromServices] MongoDBService mongoDbService) =>
+{
+  //  request.DatetimeUpdatAt = DateTime.Now;
+    await mongoDbService.UpdateKeyPairAsync(id, request);
+
+    return "OK";
+});
+
+app.MapPost("/modpack/upload/{id}", async (string id, HttpRequest request, [FromServices] MongoDBService mongoDbService) =>
 {
 
-    await mongoDbService.CreateAsync(request);
+    var modpack = await mongoDbService.GetAsync(id);
+
+    if(modpack == null)
+    {
+        return "MODPACK não encontrado.";
+    }
+    string path = Path.Combine(Directory.GetCurrentDirectory(), Config.CaminhoModPacks);
+
+    if (!Directory.Exists(path))
+    {
+        Directory.CreateDirectory(path);
+    }
+
+    var file = request.Form.Files.First();
+
+    FileInfo fileInfo = new FileInfo(file.FileName);
+
+    string fileNameWithPath = Path.Combine(path, file.FileName);
+
+    using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
+    {
+        file.CopyTo(stream);
+    }
+
+    if (Directory.Exists(fileNameWithPath))
+    {
+        Directory.Delete(fileNameWithPath);
+    }
+
+    ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(Config.CaminhoModPacks, modpack.Directory), true);
+
+    if (File.Exists(fileNameWithPath))
+    {
+        File.Delete(fileNameWithPath);
+    }
+    //  await mongoDbService.CreateAsync(request);
     return "OK";
-    //   return "OK";
+})
+.Accepts<IFormFile>("multipart/form-data")
+.Produces(200);
+
+app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] MongoDBService mongoDbService) =>
+{
+    request.DatetimeCreatAt = DateTime.Now;
+    await mongoDbService.CreateAsync(request.ToMap());
+
+    return "OK";
 });
 
 app.Run();

@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   minecraftserver.api:
-    container_name: MinecraftServer.Api
+    container_name: MinecraftServer.Api_1
     build:
       labels:
         com.microsoft.created-by: "visual-studio"
