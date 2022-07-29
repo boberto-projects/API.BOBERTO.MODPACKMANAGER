@@ -6,18 +6,30 @@ using MinecraftServer.Api.Models;
 using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MinecraftServer.Api.Utils;
-using System.Diagnostics;
+using MongoDB.Bson;
 using System.IO.Compression;
+using System.Text.Json;
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    //options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
+
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
+
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json").Build();
 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration =
@@ -39,16 +51,29 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.MapGet("/modpack/{id}", (string id) =>
+app.MapGet("/modpack/{id}", async (string id, [FromServices] MongoDBService mongoDbService) =>
 {
-    var modpack = Utils.ObterModPacks().First(e => e.Id.Equals(id));
-    return Utils.ListarArquivosRecursivos(modpack);
+    var modpack = await mongoDbService.GetAsync(id);
+
+    if (modpack == null)
+    {
+       return Results.NotFound("MODPACK não encontrado.");
+    }
+
+    return Results.Ok(Utils.ListarArquivosRecursivos(modpack));
 });
 
 
 app.MapPost("/modpack/update/{id}", async (string id, [FromBody] Dictionary<string, object> request, [FromServices] MongoDBService mongoDbService) =>
 {
-  //  request.DatetimeUpdatAt = DateTime.Now;
+    //  request.DatetimeUpdatAt = DateTime.Now;
+    var modpack = await mongoDbService.GetAsync(id);
+
+    if (modpack == null)
+    {
+        return "MODPACK não encontrado.";
+    }
+
     await mongoDbService.UpdateKeyPairAsync(id, request);
 
     return "OK";

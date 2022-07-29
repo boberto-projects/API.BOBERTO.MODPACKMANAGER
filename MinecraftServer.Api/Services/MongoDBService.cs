@@ -1,12 +1,17 @@
 ﻿using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.Services
 {
     public class MongoDBService
     {
-        private readonly IMongoCollection<ModPackModel> _mongoDBConnection;
+        private readonly IMongoCollection<BsonDocument> _mongoDBConnection;
 
         public MongoDBService(IOptions<MongoDatabaseSettings> bookStoreDatabaseSettings)
         {
@@ -16,47 +21,74 @@ namespace MinecraftServer.Api.Services
             var mongoDatabase = mongoClient.GetDatabase(
                 bookStoreDatabaseSettings.Value.DatabaseName);
 
-            _mongoDBConnection = mongoDatabase.GetCollection<ModPackModel>(
+            _mongoDBConnection = mongoDatabase.GetCollection<BsonDocument>(
                 bookStoreDatabaseSettings.Value.CollectionName);
         }
 
-        public async Task<List<ModPackModel>> GetAsync() =>
-            await _mongoDBConnection.Find(_ => true).ToListAsync();
+        public async Task<List<ModPackModel>> GetAsync<T>()
+        {
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var resultado = await _mongoDBConnection.Find(filter).ToListAsync();
+            return BsonSerializer.Deserialize<List<ModPackModel>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
+        }
 
-        public async Task<ModPackModel?> GetAsync(string id) =>
-            await _mongoDBConnection.Find(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+        public async Task<ModPackModel?> GetAsync(string id)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+            var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
+            if(resultado != null)
+            {
+                return BsonSerializer.Deserialize<ModPackModel>(resultado);
+            }
+            return null;
+        }
 
         public async Task CreateAsync(ModPackModel newBook) =>
-            await _mongoDBConnection.InsertOneAsync(newBook);
+            await _mongoDBConnection.InsertOneAsync(newBook.ToBsonDocument());
 
-        public async Task UpdateAsync(string id, ModPackModel updatedBook) =>
-            await _mongoDBConnection.ReplaceOneAsync(x => x.Id.Equals(id), updatedBook);
-
-        public async Task UpdateKeyPairAsync(string id, Dictionary<string, object> dictionary) 
+        public async Task UpdateAsync(string id, ModPackModel updatedModPack)
         {
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+            await _mongoDBConnection.ReplaceOneAsync(filter, updatedModPack.ToBsonDocument());
 
-            // var updateDefinition = Builders<ModPackModel>.Update;
-            UpdateDefinition<ModPackModel> updateDefinition = null!;
+        }
 
-            foreach (var item in dictionary)
+        public async Task UpdateKeyPairAsync(string id, Dictionary<string, object> dictionary)
+        {
+            UpdateDefinition<BsonDocument> update = null!;
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+
+            var changesJson = JsonSerializer.Serialize(dictionary);
+            var changesDocument = BsonDocument.Parse(changesJson);
+
+            foreach (var item in changesDocument)
             {
-                updateDefinition.Set(item.Key, item.Value);
+                if (update == null)
+                {
+                    var builder = Builders<BsonDocument>.Update;
+                    update = builder.Set(item.Name, item.Value);
+                }
+                else
+                {
+                    update = update.Set(item.Name, item.Value);
+                }
             }
 
-            var filter = Builders<ModPackModel>.Filter.Eq(x => x.Id, id);
-
-            FindOneAndUpdateOptions<ModPackModel> updateOptions = new FindOneAndUpdateOptions<ModPackModel>
+            var updateOptions = new UpdateOptions
             {
-                IsUpsert = false,
-                ReturnDocument = ReturnDocument.After,
+                IsUpsert = false
             };
 
-            await _mongoDBConnection.FindOneAndUpdateAsync(filter, updateDefinition, updateOptions);
-        }
-        
-     
+            update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", changesDocument));
 
-        public async Task RemoveAsync(string id) =>
-            await _mongoDBConnection.DeleteOneAsync(x => x.Id.Equals(id));
+            await _mongoDBConnection.UpdateOneAsync(filter, update);
+        }
+
+
+
+        public async Task RemoveAsync(string id){
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            await _mongoDBConnection.DeleteOneAsync(filter);
+        }
     }
 }

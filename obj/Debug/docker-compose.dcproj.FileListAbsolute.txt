@@ -20,7 +20,6 @@ C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\MongoDB.Driver.Core.dl
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\StackExchange.Redis.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\MongoDB.Libmongocrypt.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\Microsoft.OpenApi.dll
-C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\Newtonsoft.Json.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\DnsClient.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\SharpCompress.dll
 C:\Users\gedeo\source\repos\MinecraftServer.Api\bin\Debug\Pipelines.Sockets.Unofficial.dll

@@ -12,9 +12,11 @@ namespace MinecraftServer.Api.RequestModels
 
         public DateTime DatetimeUpdatAt { get; set; }
 
-        public bool Default { get; set; }
+        public bool IsDefault { get; set; }
 
-        public bool VerifyMods { get; set; }
+        public bool IsVerifyMods { get; set; }
+
+        public bool IsPremium { get; set; }
 
         public string Description { get; set; }
 
@@ -26,8 +28,6 @@ namespace MinecraftServer.Api.RequestModels
 
         public string Img { get; set; }
 
-        public bool Premium { get; set; }
-
         public string ServerIp { get; set; }
 
         public int ServerPort { get; set; }
@@ -38,16 +38,16 @@ namespace MinecraftServer.Api.RequestModels
             {
                 Name = this.Name,
                 Author = this.Author,
-                DatetimeCreatAt = this.DatetimeCreatAt,
-                DatetimeUpdatAt = this.DatetimeUpdatAt,
-                Default = this.Default,
-                VerifyMods = this.VerifyMods,
+                DateTimeCreatAt = this.DatetimeCreatAt,
+                DateTimeUpdatAt = this.DatetimeUpdatAt,
+                IsDefault = this.IsDefault,
+                IsVerifyMods = this.IsVerifyMods,
+                IsPremium = this.IsPremium,
                 Description = this.Description,
                 Directory = this.Directory,
                 ForgeVersion = this.ForgeVersion,
                 GameVersion = this.GameVersion,
                 Img = this.Img,
-                Premium = this.Premium,
                 ServerIp = this.ServerIp,
                 ServerPort = this.ServerPort,
             };
