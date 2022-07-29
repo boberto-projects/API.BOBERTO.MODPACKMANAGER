@@ -132,6 +132,6 @@ $RECYCLE.BIN/
 
 _NCrunch*
 
-MinecraftServer.Api/Files/*
-obj/*
-bin/*
+MinecraftServer.Api/Files/
+obj/
+bin/
