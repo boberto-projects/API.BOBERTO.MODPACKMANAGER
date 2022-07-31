@@ -3,60 +3,58 @@ using MinecraftServer.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.Services
 {
-    public class MongoDBService
+    public class BaseMongoDBService
     {
         private readonly IMongoCollection<BsonDocument> _mongoDBConnection;
+        private readonly MongoClient _mongoClient;
+        private readonly IMongoDatabase _mongoDatabase;
 
-        public MongoDBService(IOptions<MongoDatabaseSettings> bookStoreDatabaseSettings)
+        public BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
         {
-            var mongoClient = new MongoClient(
-                bookStoreDatabaseSettings.Value.ConnectionString);
+            var config = mongoDBSettings.Value.ObterPorColecao();
 
-            var mongoDatabase = mongoClient.GetDatabase(
-                bookStoreDatabaseSettings.Value.DatabaseName);
+            _mongoClient = new MongoClient(config.ConnectionString);
 
-            _mongoDBConnection = mongoDatabase.GetCollection<BsonDocument>(
-                bookStoreDatabaseSettings.Value.CollectionName);
+            _mongoDatabase = _mongoClient.GetDatabase(config.DatabaseName);
+
+            _mongoDBConnection = _mongoDatabase.GetCollection<BsonDocument>(config.CollectionName);
         }
 
-        public async Task<List<ModPackModel>> GetAsync<T>()
+        public virtual async Task<List<T>> GetAsync<T>()
         {
             var filter = Builders<BsonDocument>.Filter.Empty;
             var resultado = await _mongoDBConnection.Find(filter).ToListAsync();
-            return BsonSerializer.Deserialize<List<ModPackModel>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
+            return BsonSerializer.Deserialize<List<T>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
         }
 
-        public async Task<ModPackModel?> GetAsync(string id)
+        public virtual async Task<T?> GetAsync<T>(ObjectId id)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
             if(resultado != null)
             {
-                return BsonSerializer.Deserialize<ModPackModel>(resultado);
+                return BsonSerializer.Deserialize<T>(resultado);
             }
-            return null;
+            return default;
         }
 
-        public async Task CreateAsync(ModPackModel newBook) =>
-            await _mongoDBConnection.InsertOneAsync(newBook.ToBsonDocument());
+        public virtual async Task CreateAsync<T>(T value) =>
+            await _mongoDBConnection.InsertOneAsync(value.ToBsonDocument());
 
-        public async Task UpdateAsync(string id, ModPackModel updatedModPack)
+        public virtual async Task UpdateAsync<T>(ObjectId id, T value)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
-            await _mongoDBConnection.ReplaceOneAsync(filter, updatedModPack.ToBsonDocument());
-
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            await _mongoDBConnection.ReplaceOneAsync(filter, value.ToBsonDocument());
         }
 
-        public async Task UpdateKeyPairAsync(string id, Dictionary<string, object> dictionary)
+        public virtual async Task<bool> UpdateKeyPairAsync(ObjectId id, Dictionary<string, object> dictionary)
         {
             UpdateDefinition<BsonDocument> update = null!;
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
 
             var changesJson = JsonSerializer.Serialize(dictionary);
             var changesDocument = BsonDocument.Parse(changesJson);
@@ -82,13 +80,14 @@ namespace MinecraftServer.Api.Services
             update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", changesDocument));
 
             await _mongoDBConnection.UpdateOneAsync(filter, update);
+
+            return true;
         }
 
-
-
-        public async Task RemoveAsync(string id){
+        public virtual async Task<bool> RemoveAsync(ObjectId id){
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             await _mongoDBConnection.DeleteOneAsync(filter);
+            return true;
         }
     }
 }

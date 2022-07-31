@@ -21,10 +21,5 @@ namespace MinecraftServer.Api.MongoModels
         {
             return HashCode.Combine(Id);
         }
-
-        //protected BaseModel()
-        //{
-        //    Id = ObjectId.GenerateNewId();
-        //}
     }
 }

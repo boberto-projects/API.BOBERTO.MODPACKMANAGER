@@ -2,10 +2,24 @@
 {
     public class MongoDatabaseSettings
     {
-        public string ConnectionString { get; set; } = null!;
+        public IEnumerable<CollectionSettings> CollectionSettings { get; set; }
 
-        public string DatabaseName { get; set; } = null!;
+        public bool ColecacaoExiste()
+        {
+            return CollectionSettings.Any(e => e.CollectionName.Equals("dev"));
+        }
 
-        public string CollectionName { get; set; } = null!;
+        public CollectionSettings? ObterPorColecao()
+        {
+            return CollectionSettings.FirstOrDefault(e => e.CollectionName.Equals("dev"));
+        }
     }
+
+    public class CollectionSettings
+    {
+        public string ConnectionString { get; set; } = string.Empty;
+        public string DatabaseName { get; set; } = string.Empty;
+        public string CollectionName { get; set; } = string.Empty;
+    }
+
 }

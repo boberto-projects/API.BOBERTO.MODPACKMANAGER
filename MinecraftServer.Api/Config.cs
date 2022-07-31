@@ -1,4 +1,4 @@
-﻿namespace MinecraftServer.Api.Config
+﻿namespace MinecraftServer.Api
 {
     
     public static class Config

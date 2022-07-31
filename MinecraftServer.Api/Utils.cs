@@ -5,20 +5,20 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MinecraftServer.Api.Utils
+namespace MinecraftServer.Api
 {
     public static class Utils
     {
         public static IEnumerable<ModPackModel> ObterModPacks()
         {
-            var modpacks = File.ReadAllText(Config.Config.CaminhoListaModPacks, Encoding.UTF8);
+            var modpacks = File.ReadAllText(Config.CaminhoListaModPacks, Encoding.UTF8);
             var modpack_json = JsonSerializer.Deserialize<IEnumerable<ModPackModel>>(modpacks);
             return modpack_json;
         }
         
         public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPackModel modpack)
         {
-            var caminho = Path.Combine(Config.Config.CaminhoModPacks, modpack.Directory);
+            var caminho = Path.Combine(Config.CaminhoModPacks, modpack.Directory);
 
             var listaArquivos = new List<ModPackFileInfo>();
            
@@ -30,7 +30,7 @@ namespace MinecraftServer.Api.Utils
                 modpackInfo.CorrigirCaminho(item.Replace(caminho + @"/", ""));
                 listaArquivos.Add(modpackInfo);
             }
-           
+      
             return listaArquivos;
         }
 
@@ -57,8 +57,8 @@ public class ModPackFileInfo
         [EnumMember(Value = "LIBRARY")]
         LIBRARY
     }
-    [JsonConverter(typeof(JsonStringEnumConverter))]
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public TypeEnum Type { get; set; }
     public decimal Size { get; set; }
     public string Sha1 { get; set; }
