@@ -13,7 +13,7 @@ namespace MinecraftServer.Api.Routes
         public static void CriarRota(this WebApplication app)
         {
 
-            app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] BaseMongoDBService mongoDbService) =>
+            app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -26,7 +26,7 @@ namespace MinecraftServer.Api.Routes
             });
 
 
-            app.MapPost("/modpack/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] BaseMongoDBService mongoDbService) =>
+            app.MapPost("/modpack/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -40,7 +40,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok();
             });
 
-            app.MapPost("/modpack/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] BaseMongoDBService mongoDbService) =>
+            app.MapPost("/modpack/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
 
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
@@ -84,7 +84,7 @@ namespace MinecraftServer.Api.Routes
             .Accepts<IFormFile>("multipart/form-data")
             .Produces(200);
 
-            app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] BaseMongoDBService mongoDbService) =>
+            app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 request.DatetimeCreatAt = DateTime.Now;
                 await mongoDbService.CreateAsync(request.ToMap());

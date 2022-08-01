@@ -135,3 +135,5 @@ _NCrunch*
 MinecraftServer.Api/Files/
 obj/
 bin/
+.vs/
+

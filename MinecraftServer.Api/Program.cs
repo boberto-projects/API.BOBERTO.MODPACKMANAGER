@@ -17,7 +17,6 @@ var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json").Build();
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -27,31 +26,27 @@ builder.Services.AddStackExchangeRedisCache(options =>
         config.GetConnectionString("Redis");
 });
 
-
-
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
 
 builder.Services.AddSingleton<IRedisService, RedisService>();
 
 var app = builder.Build();
+
 app.CriarRota();
+
 if (app.Environment.IsDevelopment())
 {
     app.CriarMiddlewareCasimiro();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
-
 app.Run();
 
 public static class MongoDBServiceDI {
 
     public static void RegistrarDI(this IServiceCollection services, IConfigurationRoot config)
     {
-        services.Configure<MongoDatabaseSettings>(config.GetSection("MongoConnections"));
-
-        services.AddSingleton<BaseMongoDBService>();
+        services.Configure<MongoDatabaseSettings>(options => config.GetSection("MongoConnections").Bind(options));
+        services.AddSingleton<ModPackMongoDBService>();
     }
 }

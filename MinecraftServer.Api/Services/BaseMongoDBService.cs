@@ -7,16 +7,17 @@ using System.Text.Json;
 
 namespace MinecraftServer.Api.Services
 {
-    public class BaseMongoDBService
+    public abstract class BaseMongoDBService
     {
         private readonly IMongoCollection<BsonDocument> _mongoDBConnection;
         private readonly MongoClient _mongoClient;
         private readonly IMongoDatabase _mongoDatabase;
+        public abstract string CollectionName { get; }
 
-        public BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
+        protected BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
         {
-            var config = mongoDBSettings.Value.ObterPorColecao();
-
+            var config = mongoDBSettings.Value.ObterPorColecao(CollectionName);
+            
             _mongoClient = new MongoClient(config.ConnectionString);
 
             _mongoDatabase = _mongoClient.GetDatabase(config.DatabaseName);

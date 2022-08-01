@@ -4,22 +4,16 @@
     {
         public IEnumerable<CollectionSettings> CollectionSettings { get; set; }
 
-        public bool ColecacaoExiste()
-        {
-            return CollectionSettings.Any(e => e.CollectionName.Equals("dev"));
-        }
+        public bool ColecacaoExiste(string valor) => CollectionSettings.Any(e => e.CollectionName.Equals(valor));
 
-        public CollectionSettings? ObterPorColecao()
-        {
-            return CollectionSettings.FirstOrDefault(e => e.CollectionName.Equals("dev"));
-        }
+        public CollectionSettings ObterPorColecao(string valor) => CollectionSettings.First(e => e.CollectionName.Equals(valor));
     }
 
     public class CollectionSettings
     {
-        public string ConnectionString { get; set; } = string.Empty;
-        public string DatabaseName { get; set; } = string.Empty;
-        public string CollectionName { get; set; } = string.Empty;
+        public string ConnectionString { get; set; }
+        public string DatabaseName { get; set; } 
+        public string CollectionName { get; set; }
     }
 
 }
