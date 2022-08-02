@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using MinecraftServer.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -31,6 +30,16 @@ namespace MinecraftServer.Api.Services
             var resultado = await _mongoDBConnection.Find(filter).ToListAsync();
             return BsonSerializer.Deserialize<List<T>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
         }
+
+        //public virtual async Task<List<T>> GetAsync<T>(FilterDefinition<BsonDocument>? filter)
+        //{
+        //    if(filter == null)
+        //    {
+        //       filter = Builders<BsonDocument>.Filter.Empty;
+        //    }
+        //    var resultado = await _mongoDBConnection.Find(filter).ToListAsync();
+        //    return BsonSerializer.Deserialize<List<T>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
+        //}
 
         public virtual async Task<T?> GetAsync<T>(ObjectId id)
         {

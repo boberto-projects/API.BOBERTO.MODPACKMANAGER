@@ -1,17 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MinecraftServer.Api.Models;
+using MinecraftServer.Api.MongoModels;
 using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
 using System.IO.Compression;
-using System.Text.Json;
 
 namespace MinecraftServer.Api.Routes
 {
     public static class ModPackRoute
     {
+        private const string BaseUrl = "/modpacks/";
+
         public static void CriarRota(this WebApplication app)
         {
+            app.MapGet("/modpack/arquivos/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
+            {
+                var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
+
+                if (modpack == null)
+                {
+                    return Results.NotFound("MODPACK não encontrado.");
+                }
+
+                return Results.Ok(Utils.ListarArquivosRecursivos(modpack));
+            });
 
             app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
@@ -22,7 +34,13 @@ namespace MinecraftServer.Api.Routes
                     return Results.NotFound("MODPACK não encontrado.");
                 }
 
-                return Results.Ok(Utils.ListarArquivosRecursivos(modpack));
+                return Results.Ok(modpack);
+            });
+
+            app.MapGet("/modpack", async ([FromServices] ModPackMongoDBService mongoDbService) =>
+            {
+                var modpack = await mongoDbService.GetAsync<ModPackModel>();
+                return Results.Ok(modpack);
             });
 
 
@@ -36,6 +54,14 @@ namespace MinecraftServer.Api.Routes
                 }
 
                 await mongoDbService.UpdateKeyPairAsync(id, request);
+
+                return Results.Ok();
+            });
+
+            app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            {
+                request.DatetimeCreatAt = DateTime.Now;
+                await mongoDbService.CreateAsync(request.ToMap());
 
                 return Results.Ok();
             });
@@ -84,13 +110,7 @@ namespace MinecraftServer.Api.Routes
             .Accepts<IFormFile>("multipart/form-data")
             .Produces(200);
 
-            app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
-            {
-                request.DatetimeCreatAt = DateTime.Now;
-                await mongoDbService.CreateAsync(request.ToMap());
-
-                return Results.Ok();
-            });
+         
         }
 
         

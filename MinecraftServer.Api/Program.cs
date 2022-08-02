@@ -1,12 +1,9 @@
 
-using Microsoft.AspNetCore.Mvc;
 using MinecraftServer.Api;
-using MinecraftServer.Api.Models;
-using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MinecraftServer.Api.Routes;
-using System.Text.Json;
 using MinecraftServer.Api.Middlewares;
+using MinecraftServer.Api.MongoModels;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -32,7 +29,8 @@ builder.Services.AddSingleton<IRedisService, RedisService>();
 
 var app = builder.Build();
 
-app.CriarRota();
+ModPackRoute.CriarRota(app);
+LauncherVersionRoute.CriarRota(app);
 
 if (app.Environment.IsDevelopment())
 {
@@ -48,5 +46,7 @@ public static class MongoDBServiceDI {
     {
         services.Configure<MongoDatabaseSettings>(options => config.GetSection("MongoConnections").Bind(options));
         services.AddSingleton<ModPackMongoDBService>();
+        services.AddSingleton<LauncherVersionMongoDBService>();
+
     }
 }

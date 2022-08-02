@@ -1,4 +1,4 @@
-﻿using MinecraftServer.Api.Models;
+﻿using MinecraftServer.Api.MongoModels;
 
 namespace MinecraftServer.Api.RequestModels
 {

@@ -1,4 +1,4 @@
-﻿using MinecraftServer.Api.Models;
+﻿using MinecraftServer.Api.MongoModels;
 using NETCore.Encrypt;
 using System.Runtime.Serialization;
 using System.Text;

@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MinecraftServer.Api.Models
+namespace MinecraftServer.Api.MongoModels
 {
     public class ModPackModel : BaseModel
     {
