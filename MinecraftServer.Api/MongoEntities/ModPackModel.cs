@@ -1,8 +1,7 @@
-﻿using MinecraftServer.Api.MongoModels;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MinecraftServer.Api.MongoModels
+namespace MinecraftServer.Api.MongoEntities
 {
     public class ModPackModel : BaseModel
     {

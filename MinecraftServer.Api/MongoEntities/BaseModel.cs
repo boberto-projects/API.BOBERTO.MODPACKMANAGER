@@ -2,7 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
-namespace MinecraftServer.Api.MongoModels
+namespace MinecraftServer.Api.MongoEntities
 {
     public abstract class BaseModel
     {

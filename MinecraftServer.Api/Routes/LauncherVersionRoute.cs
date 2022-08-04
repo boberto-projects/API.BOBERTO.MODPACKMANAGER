@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MinecraftServer.Api.MongoModels;
+using MinecraftServer.Api.Models;
+using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
@@ -44,8 +45,8 @@ namespace MinecraftServer.Api.Routes
                 var ultimoLauncher = launcherVersion.FirstOrDefault();    
                 return Results.Ok(ultimoLauncher);
             });
-
-            app.MapPost(BaseUrl + "/upload/{system}", async (string system, HttpRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+             
+            app.MapPost(BaseUrl + "/upload/{system}", async ([FromRoute] SystemEnum system, HttpRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var fields = new Dictionary<string, object>();
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
@@ -76,26 +77,26 @@ namespace MinecraftServer.Api.Routes
                 var url = $"http://localhost/{fileNameWithPath}";
                 switch (system)
                 {
-                    case "windows":
+                    case SystemEnum.WINDOWS:
                         fields.Add("packages.Win64", new LauncherVersionModel.Win64Entity()
                         {
                             Url = url,
                         });
                     break;
 
-                    case "mac":
+                    case SystemEnum.MAC:
                         fields.Add("packages.Mac64", new LauncherVersionModel.Mac64Entity()
                         {
                             Url = url,
                         });
-                        break;
+                    break;
 
-                    case "linux":
+                    case SystemEnum.LINUX:
                         fields.Add("packages.Linux64", new LauncherVersionModel.Linux64Entity()
                         {
                             Url = url,
                         });
-                        break;
+                    break;
 
                 }
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), fields);
