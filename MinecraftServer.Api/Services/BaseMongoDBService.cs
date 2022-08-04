@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using System.Linq;
 using System.Text.Json;
 
 namespace MinecraftServer.Api.Services
@@ -27,8 +29,15 @@ namespace MinecraftServer.Api.Services
         public virtual async Task<List<T>> GetAsync<T>()
         {
             var filter = Builders<BsonDocument>.Filter.Empty;
-            var resultado = await _mongoDBConnection.Find(filter).ToListAsync();
-            return BsonSerializer.Deserialize<List<T>>((MongoDB.Bson.IO.IBsonReader)resultado).ToList();
+            var resultado = await _mongoDBConnection.FindAsync(filter);
+            var list = new List<T>();
+            foreach (var item in resultado.ToList())
+            {
+                var model = BsonSerializer.Deserialize<T>(item);
+                list.Add(model);
+            }
+
+            return list;
         }
 
         //public virtual async Task<List<T>> GetAsync<T>(FilterDefinition<BsonDocument>? filter)
@@ -47,7 +56,7 @@ namespace MinecraftServer.Api.Services
             var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
             if(resultado != null)
             {
-                return BsonSerializer.Deserialize<T>(resultado);
+                return BsonSerializer.Deserialize<T>((IBsonReader)resultado);
             }
             return default;
         }
@@ -89,7 +98,7 @@ namespace MinecraftServer.Api.Services
 
             update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", changesDocument));
 
-            await _mongoDBConnection.UpdateOneAsync(filter, update);
+            await _mongoDBConnection.UpdateOneAsync(filter, update, updateOptions);
 
             return true;
         }

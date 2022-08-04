@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.MongoModels
 {
@@ -8,6 +10,7 @@ namespace MinecraftServer.Api.MongoModels
         public class Linux64Entity
         {
             [BsonElement("url")]
+            [JsonPropertyName("url")]
             [BsonRepresentation(BsonType.String)]
             public string Url { get; set; }
         }
@@ -15,6 +18,7 @@ namespace MinecraftServer.Api.MongoModels
         public class Mac64Entity
         {
             [BsonElement("url")]
+            [JsonPropertyName("url")]
             [BsonRepresentation(BsonType.String)]
             public string Url { get; set; }
         }
@@ -22,6 +26,7 @@ namespace MinecraftServer.Api.MongoModels
         public class Win64Entity
         {
             [BsonElement("url")]
+            [JsonPropertyName("url")]
             [BsonRepresentation(BsonType.String)]
             public string Url { get; set; }
         }

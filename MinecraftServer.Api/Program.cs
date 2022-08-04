@@ -45,8 +45,8 @@ public static class MongoDBServiceDI {
     public static void RegistrarDI(this IServiceCollection services, IConfigurationRoot config)
     {
         services.Configure<MongoDatabaseSettings>(options => config.GetSection("MongoConnections").Bind(options));
-        services.AddSingleton<ModPackMongoDBService>();
-        services.AddSingleton<LauncherVersionMongoDBService>();
+        services.AddScoped<ModPackMongoDBService>();
+        services.AddScoped<LauncherVersionMongoDBService>();
 
     }
 }
