@@ -14,16 +14,17 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
-            app.MapPut(BaseUrl, async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl, async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
-                var launcherConfig = await mongoDbService.GetAsync<LauncherVersionModel>(id);
+                var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+                var ultimoLauncher = launcherVersion.FirstOrDefault();
 
-                if (launcherConfig == null)
+                if (ultimoLauncher == null)
                 {
                     return Results.NotFound("Config não encontrado.");
                 }
 
-                await mongoDbService.UpdateKeyPairAsync(id, request);
+                await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);
 
                 return Results.Ok();
             });
@@ -74,6 +75,7 @@ namespace MinecraftServer.Api.Routes
                 {
                     file.CopyTo(stream);
                 }
+
                 var url = $"http://localhost/{fileNameWithPath}";
                 switch (system)
                 {
@@ -97,8 +99,8 @@ namespace MinecraftServer.Api.Routes
                             Url = url,
                         });
                     break;
-
                 }
+
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), fields);
 
                 return Results.Ok();
