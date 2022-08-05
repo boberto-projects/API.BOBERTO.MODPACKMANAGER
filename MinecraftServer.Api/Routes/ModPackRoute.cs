@@ -4,6 +4,7 @@ using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
 using System.IO.Compression;
+using System.Reflection;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -13,7 +14,9 @@ namespace MinecraftServer.Api.Routes
 
         public static void CriarRota(this WebApplication app)
         {
-            app.MapGet("/modpack/arquivos/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapGet("/modpack/files/{id}/{generateCache}", async ([FromRoute]  ObjectId id, [FromRoute] bool generateCache, 
+                [FromServices] ModPackMongoDBService mongoDbService,
+                [FromServices] IRedisService redisService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -22,7 +25,16 @@ namespace MinecraftServer.Api.Routes
                     return Results.NotFound("MODPACK não encontrado.");
                 }
 
-                return Results.Ok(Utils.ListarArquivosRecursivos(modpack));
+                var idRedis = id.ToString();
+
+
+                if (!redisService.Exists(idRedis) || generateCache)
+                {
+                    var files = Utils.ListarArquivosRecursivos(modpack);
+                    redisService.Set(idRedis, files, 3600);
+                }
+
+                return Results.Ok(redisService.Get<List<ModPackFileInfo>>(idRedis));
             });
 
             app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
@@ -75,7 +87,7 @@ namespace MinecraftServer.Api.Routes
                 {
                     return Results.NotFound("MODPACK não encontrado.");
                 }
-                string path = Path.Combine(Directory.GetCurrentDirectory(), Config.CaminhoModPacks);
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks);
 
                 if (!Directory.Exists(path))
                 {

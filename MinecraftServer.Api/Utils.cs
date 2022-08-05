@@ -1,5 +1,6 @@
 ﻿using MinecraftServer.Api.MongoEntities;
 using NETCore.Encrypt;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
@@ -9,16 +10,15 @@ namespace MinecraftServer.Api
 {
     public static class Utils
     {
-        public static IEnumerable<ModPackModel> ObterModPacks()
-        {
-            var modpacks = File.ReadAllText(Config.CaminhoListaModPacks, Encoding.UTF8);
-            var modpack_json = JsonSerializer.Deserialize<IEnumerable<ModPackModel>>(modpacks);
-            return modpack_json;
-        }
         
         public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPackModel modpack)
         {
-            var caminho = Path.Combine(Config.CaminhoModPacks, modpack.Directory);
+            var caminho = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks, modpack.Directory);
+
+            if (!Directory.Exists(caminho))
+            {
+                Directory.CreateDirectory(caminho);
+            }
 
             var listaArquivos = new List<ModPackFileInfo>();
            
@@ -90,8 +90,11 @@ public class ModPackFileInfo
         Url = $"http://localhost:5000/{path}";
         Path = path;
     }
+    public ModPackFileInfo()
+    {
 
-    public ModPackFileInfo(string path)
+    }
+        public ModPackFileInfo(string path)
     {
         FileInfo fsi = new FileInfo(path);
         Type = ObterTipo(path);

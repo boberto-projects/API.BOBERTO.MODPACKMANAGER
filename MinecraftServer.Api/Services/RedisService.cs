@@ -36,19 +36,19 @@ namespace MinecraftServer.Api.Services
             return valor;
         }
 
-        public bool Apagar(string chave)
-        {
-            _redisCache.Remove(chave);
-            return default;
-        }
-
         public T Set<T>(string chave, T valor)
         {
             _redisCache.SetString(chave, JsonSerializer.Serialize(valor));
             return valor;
         }
 
-        public bool Verificar(string chave)
+        public bool Clear(string chave)
+        {
+            _redisCache.Remove(chave);
+            return default;
+        }
+
+        public bool Exists(string chave)
         {
             return _redisCache.Get(chave) != null;
         }

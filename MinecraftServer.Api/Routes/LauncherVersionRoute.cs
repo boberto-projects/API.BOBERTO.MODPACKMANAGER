@@ -5,6 +5,7 @@ using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Reflection;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -58,7 +59,7 @@ namespace MinecraftServer.Api.Routes
                     return Results.NotFound("Config não encontrado.");
                 }
 
-                string path = Path.Combine(Directory.GetCurrentDirectory(), Config.CaminhoLauncherVersions);
+                string path = Path.Combine(Assembly.GetExecutingAssembly().Location, Config.CaminhoLauncherVersions);
 
                 if (!Directory.Exists(path))
                 {

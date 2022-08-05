@@ -56,7 +56,7 @@ namespace MinecraftServer.Api.Services
             var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
             if(resultado != null)
             {
-                return BsonSerializer.Deserialize<T>((IBsonReader)resultado);
+                return BsonSerializer.Deserialize<T>(resultado);
             }
             return default;
         }

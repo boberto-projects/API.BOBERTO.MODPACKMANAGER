@@ -6,7 +6,7 @@ namespace MinecraftServer.Api.Middlewares
 {
     public static class CasimiroErrorHandler
     {
-        private const string STACK_URL = "https://stackoverflow.com/search?q=";
+        private const string STACKOVERFLOW_URL = "https://stackoverflow.com/search?q=";
 
         public static void CriarMiddlewareCasimiro(this WebApplication app)
         {
@@ -27,16 +27,12 @@ namespace MinecraftServer.Api.Middlewares
                     var message = new
                     {
                         Frase = frasesCasimiro[rnd.Next(frasesCasimiro.Count())],
-                        StackOverFlow = STACK_URL + HttpUtility.UrlEncode(error?.Error.Message),
+                        StackOverFlow = STACKOVERFLOW_URL + HttpUtility.UrlEncode(error?.Error.Message),
                         StackTrace = error?.Error.StackTrace
                     };
 
                     await context.Response.WriteAsJsonAsync(message);
 
-                    if (error?.Error is FileNotFoundException)
-                    {
-                        await context.Response.WriteAsync(" The file was not found.");
-                    }
 
               
                 });
