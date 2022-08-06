@@ -5,6 +5,7 @@ using MinecraftServer.Api.Routes;
 using MinecraftServer.Api.Middlewares;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -37,9 +38,13 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
 
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
+builder.Services.AddScoped<IAuthorization, Authorization>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
