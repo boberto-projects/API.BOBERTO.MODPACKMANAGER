@@ -1,4 +1,5 @@
 ﻿using MinecraftServer.Api.MongoEntities;
+using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.RequestModels
 {
@@ -6,27 +7,37 @@ namespace MinecraftServer.Api.RequestModels
     {
         public class Linux64Model
         {
+            [JsonPropertyName("url")]
             public string Url { get; set; }
         }
 
         public class Mac64Model
         {
+            [JsonPropertyName("url")]
             public string Url { get; set; }
         }
 
         public class Win64Model
         {
+            [JsonPropertyName("url")]
             public string Url { get; set; }
         }
 
         public class PackagesModel
         {
+            [JsonPropertyName("win64")]
             public Win64Model Win64 { get; set; }
+
+            [JsonPropertyName("mac64")]
             public Mac64Model Mac64 { get; set; }
+
+            [JsonPropertyName("linux64")]
             public Linux64Model Linux64 { get; set; }
         }
-
+        [JsonPropertyName("version")]
         public string Version { get; set; }
+
+        [JsonPropertyName("packages")]
         public PackagesModel Packages { get; set; }
 
         public LauncherVersionModel ToMap()

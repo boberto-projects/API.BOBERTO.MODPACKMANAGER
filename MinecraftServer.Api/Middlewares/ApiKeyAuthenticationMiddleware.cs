@@ -1,8 +1,5 @@
-﻿using MinecraftServer.Api.Services;
-
-namespace MinecraftServer.Api.Middlewares
+﻿namespace MinecraftServer.Api.Middlewares
 {
-
     //middleware based on https://www.c-sharpcorner.com/article/using-api-key-authentication-to-secure-asp-net-core-web-api/
     //because i need to fix this and the time is short.
     public class ApiKeyAuthenticationMiddleware

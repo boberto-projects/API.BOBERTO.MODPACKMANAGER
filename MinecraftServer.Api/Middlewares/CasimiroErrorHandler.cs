@@ -20,6 +20,7 @@ namespace MinecraftServer.Api.Middlewares
 
                     var error = context.Features.Get<IExceptionHandlerPathFeature>();
 
+                   
                     var frasesCasimiro = new List<string>() { "Meteu essa?", "Isso que dá gastar dinheiro com merda!",
                         "DENTROOOOO!", "Nerdola meteu essa. kkkkkkk" };
                     var rnd = new Random();

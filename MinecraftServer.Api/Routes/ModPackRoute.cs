@@ -56,7 +56,7 @@ namespace MinecraftServer.Api.Routes
             });
 
 
-            app.MapPost("/modpack/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPut("/modpack/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
