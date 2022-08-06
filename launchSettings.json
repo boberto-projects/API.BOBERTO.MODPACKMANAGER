@@ -2,12 +2,11 @@
   "profiles": {
     "Docker Compose": {
       "commandName": "DockerCompose",
-      "composeLaunchAction": "None",
-      "composeLaunchServiceName": "minecraftserver.api",
       "commandVersion": "1.0",
       "serviceActions": {
-        "minecraftserver.api": "StartDebugging",
-        "redis_compose": "StartWithoutDebugging"
+        "minecraftserver.api": "StartWithoutDebugging",
+        "redis_compose": "StartWithoutDebugging",
+        "mongo": "StartWithoutDebugging"
       }
     }
   }
