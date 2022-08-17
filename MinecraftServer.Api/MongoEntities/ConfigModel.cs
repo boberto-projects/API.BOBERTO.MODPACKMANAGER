@@ -6,7 +6,7 @@ namespace MinecraftServer.Api.MongoEntities
     public class ConfigModel : BaseModel
     {
         [BsonElement("maintenance")]
-        [BsonRepresentation(BsonType.String)]
+        [BsonRepresentation(BsonType.Boolean)]
         public bool Maintenance { get; set; }
 
         [BsonElement("maintenance_message")]
@@ -14,7 +14,7 @@ namespace MinecraftServer.Api.MongoEntities
         public string MaintenanceMessage { get; set; }
 
         [BsonElement("offline")]
-        [BsonRepresentation(BsonType.String)]
+        [BsonRepresentation(BsonType.Boolean)]
         public bool Offline { get; set; }
 
         [BsonElement("client_id")]

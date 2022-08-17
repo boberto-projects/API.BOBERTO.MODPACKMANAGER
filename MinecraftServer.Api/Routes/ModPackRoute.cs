@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
 using System.IO.Compression;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -14,7 +17,7 @@ namespace MinecraftServer.Api.Routes
 
         public static void CriarRota(this WebApplication app)
         {
-            app.MapGet("/modpack/files/{id}/{generateCache}", async ([FromRoute]  ObjectId id, [FromRoute] bool generateCache, 
+            app.MapGet("/modpack/files/{id}/{generateCache}", async (HttpRequest request, [FromRoute]  ObjectId id, [FromRoute] bool generateCache, 
                 [FromServices] ModPackMongoDBService mongoDbService,
                 [FromServices] IRedisService redisService) =>
             {
@@ -27,14 +30,19 @@ namespace MinecraftServer.Api.Routes
 
                 var idRedis = id.ToString();
 
-
                 if (!redisService.Exists(idRedis) || generateCache)
                 {
                     var files = Utils.ListarArquivosRecursivos(modpack);
                     redisService.Set(idRedis, files, 3600);
                 }
+                var response = redisService.Get<List<ModPackFileInfo>>(idRedis);
 
-                return Results.Ok(redisService.Get<List<ModPackFileInfo>>(idRedis));
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] bytes = encoding.GetBytes(JsonSerializer.Serialize(response));
+
+                request.ContentLength = bytes.Length;
+                request.ContentType = "application/x-www-form-urlencoded";
+                return Results.Ok(response);
             });
 
             app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
@@ -80,7 +88,6 @@ namespace MinecraftServer.Api.Routes
 
             app.MapPost("/modpack/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
-
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
                 if (modpack == null)
@@ -110,7 +117,7 @@ namespace MinecraftServer.Api.Routes
                     Directory.Delete(fileNameWithPath);
                 }
 
-                ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(Config.CaminhoModPacks, modpack.Directory), true);
+                ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(path, modpack.Directory), true);
 
                 if (File.Exists(fileNameWithPath))
                 {

@@ -1,9 +1,5 @@
 ﻿using MinecraftServer.Api.MongoEntities;
-using NETCore.Encrypt;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api
@@ -13,7 +9,7 @@ namespace MinecraftServer.Api
         
         public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPackModel modpack)
         {
-            var caminho = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks, modpack.Directory);
+            var caminho = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks, modpack.Directory);
 
             if (!Directory.Exists(caminho))
             {
@@ -27,7 +23,7 @@ namespace MinecraftServer.Api
             foreach(var item in arquivos)
             {
                 var modpackInfo = new ModPackFileInfo(item);
-                modpackInfo.CorrigirCaminho(item.Replace(caminho + @"/", ""));
+                modpackInfo.CorrigirCaminho(modpack.Directory, item.Replace(caminho + @"/", ""));
                 listaArquivos.Add(modpackInfo);
             }
       
@@ -49,7 +45,7 @@ public class ModPackFileInfo
         MOD,
 
         [EnumMember(Value = "VERIONSCUSTOM")]
-        VERSIONCUSTOM,
+        VERIONSCUSTOM,
 
         [EnumMember(Value = "FILE")]
         FILE,
@@ -58,12 +54,13 @@ public class ModPackFileInfo
         LIBRARY
     }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TypeEnum Type { get; set; }
+
+    public string Path { get; set; }
     public decimal Size { get; set; }
     public string Sha1 { get; set; }
-    public string Path { get; set; }
     public string Url { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public TypeEnum Type { get; set; }
 
     private TypeEnum ObterTipo(string path)
     {
@@ -77,7 +74,7 @@ public class ModPackFileInfo
         }
         else if (path.Contains("versions"))
         {
-            return TypeEnum.VERSIONCUSTOM;
+            return TypeEnum.VERIONSCUSTOM;
         }
         else
         {
@@ -85,20 +82,45 @@ public class ModPackFileInfo
         }
     }
 
-    public void CorrigirCaminho(string path)
+    public void CorrigirCaminho(string modpack_dir, string path)
     {
-        Url = $"http://localhost:5000/{path}";
         Path = path;
+        Url = $"http://localhost:5000/files/{modpack_dir}/{path}";
     }
     public ModPackFileInfo()
     {
 
     }
-        public ModPackFileInfo(string path)
+    public ModPackFileInfo(string path)
     {
         FileInfo fsi = new FileInfo(path);
         Type = ObterTipo(path);
         Size = fsi.Length;
-        Sha1 = EncryptProvider.Sha1(path);
+        Sha1 = ChecksumUtil.GetChecksum(HashingAlgoTypes.SHA1, path).ToLower();
     }
+}
+
+
+public static class ChecksumUtil
+{
+    public static string GetChecksum(HashingAlgoTypes hashingAlgoType, string filename)
+    {
+        using (var hasher = System.Security.Cryptography.HashAlgorithm.Create(hashingAlgoType.ToString()))
+        {
+            using (var stream = System.IO.File.OpenRead(filename))
+            {
+                var hash = hasher.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "");
+            }
+        }
+    }
+
+}
+public enum HashingAlgoTypes
+{
+    MD5,
+    SHA1,
+    SHA256,
+    SHA384,
+    SHA512
 }
