@@ -1,4 +1,6 @@
-﻿using MinecraftServer.Api.MongoEntities;
+﻿using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Models;
+using MinecraftServer.Api.MongoEntities;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -7,9 +9,9 @@ namespace MinecraftServer.Api
     public static class Utils
     {
         
-        public static List<ModPackFileInfo> ListarArquivosRecursivos(ModPackModel modpack)
+        public static List<ModPackFileInfo> ListarArquivosRecursivos(IOptions<ApiConfig> apiConfig, ModPackModel modpack)
         {
-            var caminho = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks, modpack.Directory);
+            var caminho = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks, modpack.Directory);
 
             if (!Directory.Exists(caminho))
             {
@@ -23,98 +25,25 @@ namespace MinecraftServer.Api
             foreach(var item in arquivos)
             {
                 var modpackInfo = new ModPackFileInfo(item);
-                modpackInfo.CorrigirCaminho(modpack.Directory, item.Replace(caminho + @"/", ""));
+                modpackInfo.CorrigirCaminho(modpack.Directory, item.Replace(caminho + @"/", ""), apiConfig.Value.FilesDirUrl);
                 listaArquivos.Add(modpackInfo);
             }
       
             return listaArquivos;
         }
 
-    }
-}
-
-
-//gambiarra por agora. O boberto foi estruturado as pressas e certas variáveis não deveriam nem existir
-//como o objetivo é migrar do PHP pra cá, a comunicação dos serviços do Boberto também serão alterados.
-
-public class ModPackFileInfo
-{
-    public enum TypeEnum
-    {
-        [EnumMember(Value = "MOD")]
-        MOD,
-
-        [EnumMember(Value = "VERIONSCUSTOM")]
-        VERIONSCUSTOM,
-
-        [EnumMember(Value = "FILE")]
-        FILE,
-
-        [EnumMember(Value = "LIBRARY")]
-        LIBRARY
-    }
-
-
-    public string Path { get; set; }
-    public decimal Size { get; set; }
-    public string Sha1 { get; set; }
-    public string Url { get; set; }
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TypeEnum Type { get; set; }
-
-    private TypeEnum ObterTipo(string path)
-    {
-        if (path.Contains("libraries"))
+        public static string GetChecksum(HashingAlgoTypes hashingAlgoType, string filename)
         {
-            return TypeEnum.LIBRARY;
-        } 
-        else if (path.Contains("mods"))
-        {
-            return TypeEnum.MOD;
-        }
-        else if (path.Contains("versions"))
-        {
-            return TypeEnum.VERIONSCUSTOM;
-        }
-        else
-        {
-            return TypeEnum.FILE;
-        }
-    }
-
-    public void CorrigirCaminho(string modpack_dir, string path)
-    {
-        Path = path;
-        Url = $"http://localhost:5000/files/{modpack_dir}/{path}";
-    }
-    public ModPackFileInfo()
-    {
-
-    }
-    public ModPackFileInfo(string path)
-    {
-        FileInfo fsi = new FileInfo(path);
-        Type = ObterTipo(path);
-        Size = fsi.Length;
-        Sha1 = ChecksumUtil.GetChecksum(HashingAlgoTypes.SHA1, path).ToLower();
-    }
-}
-
-
-public static class ChecksumUtil
-{
-    public static string GetChecksum(HashingAlgoTypes hashingAlgoType, string filename)
-    {
-        using (var hasher = System.Security.Cryptography.HashAlgorithm.Create(hashingAlgoType.ToString()))
-        {
-            using (var stream = System.IO.File.OpenRead(filename))
+            using (var hasher = System.Security.Cryptography.HashAlgorithm.Create(hashingAlgoType.ToString()))
             {
-                var hash = hasher.ComputeHash(stream);
-                return BitConverter.ToString(hash).Replace("-", "");
+                using (var stream = System.IO.File.OpenRead(filename))
+                {
+                    var hash = hasher.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLower();
+                }
             }
         }
     }
-
 }
 public enum HashingAlgoTypes
 {

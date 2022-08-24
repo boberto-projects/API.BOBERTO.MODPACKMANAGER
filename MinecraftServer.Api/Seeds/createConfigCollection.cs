@@ -7,7 +7,7 @@ namespace MinecraftServer.Api.Seeds
     {
         public static void CreateConfigDefaulCollection(IServiceProvider services)
         {
-            var mongoDBService = services.GetService<ConfigMongoDBService>();
+            var mongoDBService = services.GetService<LauncherConfigMongoDBService>();
 
             var config = mongoDBService.GetAsync<ConfigModel>().Result;
             var lastConfig = config.FirstOrDefault();

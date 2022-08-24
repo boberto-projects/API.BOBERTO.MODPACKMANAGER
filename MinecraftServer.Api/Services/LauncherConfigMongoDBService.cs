@@ -2,11 +2,11 @@
 
 namespace MinecraftServer.Api.Services
 {
-    public class ConfigMongoDBService : BaseMongoDBService
+    public class LauncherConfigMongoDBService : BaseMongoDBService
     {
         public override string CollectionName { get => "Config"; }
 
-        public ConfigMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings) : base(mongoDBSettings)
+        public LauncherConfigMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings) : base(mongoDBSettings)
         {
 
         }

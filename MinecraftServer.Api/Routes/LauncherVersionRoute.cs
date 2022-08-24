@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
@@ -28,7 +29,7 @@ namespace MinecraftServer.Api.Routes
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);
 
                 return Results.Ok();
-            });
+            }).WithTags("Launcher Version");
 
             app.MapPost(BaseUrl, async (LauncherVersionRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
@@ -39,16 +40,16 @@ namespace MinecraftServer.Api.Routes
                     await mongoDbService.CreateAsync(request.ToMap());
                 }
                 return Results.Ok("Config criado com sucesso.");
-            });
+            }).WithTags("Launcher Version");
 
             app.MapGet(BaseUrl, async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
                 var ultimoLauncher = launcherVersion.FirstOrDefault();    
                 return Results.Ok(ultimoLauncher);
-            });
+            }).WithTags("Launcher Version");
              
-            app.MapPost(BaseUrl + "/upload/{system}", async ([FromRoute] SystemEnum system, HttpRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{system}", async (HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig, [FromRoute] SystemEnum system, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var fields = new Dictionary<string, object>();
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
@@ -59,7 +60,7 @@ namespace MinecraftServer.Api.Routes
                     return Results.NotFound("Config não encontrado.");
                 }
 
-                string path = Path.Combine(Assembly.GetExecutingAssembly().Location, Config.CaminhoLauncherVersions);
+                string path = Path.Combine(Assembly.GetExecutingAssembly().Location, apiConfig.Value.CaminhoLauncherVersion);
 
                 if (!Directory.Exists(path))
                 {
@@ -105,7 +106,7 @@ namespace MinecraftServer.Api.Routes
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), fields);
 
                 return Results.Ok();
-            })
+            }).WithTags("Launcher Version")
       .Accepts<IFormFile>("multipart/form-data")
       .Produces(200);
         }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
@@ -13,11 +15,11 @@ namespace MinecraftServer.Api.Routes
 {
     public static class ModPackRoute
     {
-        private const string BaseUrl = "/modpacks/";
+        private const string BaseUrl = "/modpack";
 
         public static void CriarRota(this WebApplication app)
         {
-            app.MapGet("/modpack/files/{id}/{generateCache}", async (HttpRequest request, [FromRoute]  ObjectId id, [FromRoute] bool generateCache, 
+            app.MapGet(BaseUrl + "/files/{id}/{forceGenerateCache}", async ([FromRoute]  ObjectId id, [FromServices] IOptions<ApiConfig> apiConfig, [FromRoute] bool forceGenerateCache, 
                 [FromServices] ModPackMongoDBService mongoDbService,
                 [FromServices] IRedisService redisService) =>
             {
@@ -30,22 +32,17 @@ namespace MinecraftServer.Api.Routes
 
                 var idRedis = id.ToString();
 
-                if (!redisService.Exists(idRedis) || generateCache)
+                if (!redisService.Exists(idRedis) || forceGenerateCache)
                 {
-                    var files = Utils.ListarArquivosRecursivos(modpack);
+                    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
                     redisService.Set(idRedis, files, 3600);
                 }
                 var response = redisService.Get<List<ModPackFileInfo>>(idRedis);
-
-                ASCIIEncoding encoding = new ASCIIEncoding();
-                byte[] bytes = encoding.GetBytes(JsonSerializer.Serialize(response));
-
-                request.ContentLength = bytes.Length;
-                request.ContentType = "application/x-www-form-urlencoded";
+      
                 return Results.Ok(response);
-            });
+            }).WithTags("ModPack Manager");
 
-            app.MapGet("/modpack/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapGet(BaseUrl + "/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -55,16 +52,16 @@ namespace MinecraftServer.Api.Routes
                 }
 
                 return Results.Ok(modpack);
-            });
+            }).WithTags("ModPack Manager");
 
-            app.MapGet("/modpack", async ([FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapGet(BaseUrl, async ([FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>();
                 return Results.Ok(modpack);
-            });
+            }).WithTags("ModPack Manager");
 
 
-            app.MapPut("/modpack/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl + "/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -76,17 +73,17 @@ namespace MinecraftServer.Api.Routes
                 await mongoDbService.UpdateKeyPairAsync(id, request);
 
                 return Results.Ok();
-            });
+            }).WithTags("ModPack Manager");
 
-            app.MapPost("/modpack/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 request.DatetimeCreatAt = DateTime.Now;
                 await mongoDbService.CreateAsync(request.ToMap());
 
                 return Results.Ok();
-            });
+            }).WithTags("ModPack Manager");
 
-            app.MapPost("/modpack/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,[FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -94,8 +91,9 @@ namespace MinecraftServer.Api.Routes
                 {
                     return Results.NotFound("MODPACK não encontrado.");
                 }
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.CaminhoModPacks);
-
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
+                string outputPath = Path.Combine(path, modpack.Directory);
+                
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -112,12 +110,12 @@ namespace MinecraftServer.Api.Routes
                     file.CopyTo(stream);
                 }
 
-                if (Directory.Exists(fileNameWithPath))
+                if (Directory.Exists(outputPath))
                 {
-                    Directory.Delete(fileNameWithPath);
+                    Directory.Delete(outputPath);
                 }
 
-                ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(path, modpack.Directory), true);
+                ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(path, modpack.Directory));
 
                 if (File.Exists(fileNameWithPath))
                 {
@@ -125,14 +123,9 @@ namespace MinecraftServer.Api.Routes
                 }
                 //  await mongoDbService.CreateAsync(request);
                  return Results.Ok();
-            })
+            }).WithTags("ModPack Manager")
             .Accepts<IFormFile>("multipart/form-data")
             .Produces(200);
-
-         
-        }
-
-        
-
+        }   
     }
 }
