@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using MinecraftServer.Api.Seeds;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Http.Features;
+using MinecraftServer.Api.Models;
+using Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -29,6 +31,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
+builder.Services.AddSingleton<ApiCicloDeVida>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
 builder.Services.AddDirectoryBrowser();
 
@@ -42,15 +45,23 @@ builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").
 
 var app = builder.Build();
 
-//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+
+
+app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
+{
+    return "Último deploy " + apiCicloDeVida.iniciouEm.ToString("d");
+}).WithTags("Health Check");
 
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
 ConfigRoute.CriarRota(app);
 
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+app.CriarMiddlewareCasimiro();
+
 if (app.Environment.IsDevelopment())
 {
-    app.CriarMiddlewareCasimiro();
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }

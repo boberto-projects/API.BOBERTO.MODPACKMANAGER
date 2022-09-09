@@ -8,15 +8,21 @@ namespace MinecraftServer.Api.Routes
     public static class ConfigRoute
     {
         private const string BaseUrl = "/config";
-        //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
+    
+        public async static Task<IResult> GetLauncherConfig([FromServices] LauncherConfigMongoDBService mongoDbService)
+        {
+            var config = await mongoDbService.GetAsync<ConfigModel>();
+            var lastConfig = config.FirstOrDefault();
+            return Results.Ok(lastConfig);
+        }
+        //vamos começar a estudar os testes com esse metódo e refatorar o esquema de rotas.
+        //delegando toda lógica de negócio pra um serviço
+
         public static void CriarRota(this WebApplication app)
         {
-            app.MapGet(BaseUrl, async ([FromServices] LauncherConfigMongoDBService mongoDbService) =>
-            {
-                var config = await mongoDbService.GetAsync<ConfigModel>();
-                var lastConfig = config.FirstOrDefault();
-                return Results.Ok(lastConfig);
-            }).WithTags("Launcher Config");
+         
+            app.MapGet(BaseUrl, GetLauncherConfig)
+                .WithTags("Launcher Config");
 
             app.MapPut(BaseUrl, async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherConfigMongoDBService mongoDbService) =>
             {

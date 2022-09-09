@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
@@ -27,7 +28,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    return Results.NotFound("MODPACK não encontrado.");
+                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 var idRedis = id.ToString();
