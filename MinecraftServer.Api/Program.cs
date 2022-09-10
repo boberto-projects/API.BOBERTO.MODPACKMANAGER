@@ -50,7 +50,7 @@ app.CriarMiddlewareCasimiro();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
-    return "Último deploy " + apiCicloDeVida.iniciouEm.ToString("d");
+    return "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
 }).WithTags("Health Check");
 
 //app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
