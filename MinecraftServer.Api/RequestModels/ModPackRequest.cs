@@ -7,6 +7,9 @@ namespace MinecraftServer.Api.RequestModels
 {
     public class ModPackRequest
     {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -53,6 +56,7 @@ namespace MinecraftServer.Api.RequestModels
         {
             return new ModPackModel
             {
+                Id = this.Id,
                 Name = this.Name,
                 Author = this.Author,
                 DateTimeCreatAt = this.DatetimeCreatAt,

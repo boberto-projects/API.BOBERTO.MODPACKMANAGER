@@ -46,18 +46,19 @@ builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").
 var app = builder.Build();
 
 
+app.CriarMiddlewareCasimiro();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     return "Último deploy " + apiCicloDeVida.iniciouEm.ToString("d");
 }).WithTags("Health Check");
 
+//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
 ConfigRoute.CriarRota(app);
 
-app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
-app.CriarMiddlewareCasimiro();
 
 if (app.Environment.IsDevelopment())
 {

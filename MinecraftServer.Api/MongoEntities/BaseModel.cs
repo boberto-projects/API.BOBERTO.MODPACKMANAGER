@@ -8,11 +8,11 @@ namespace MinecraftServer.Api.MongoEntities
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         protected BaseModel()
         {
-            Id = ObjectId.GenerateNewId().ToString();
+            Id = string.IsNullOrEmpty(Id) ? ObjectId.GenerateNewId().ToString() : this.Id;
         }
 
         public override bool Equals(object? obj)

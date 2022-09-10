@@ -49,7 +49,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    return Results.NotFound("MODPACK não encontrado.");
+                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 return Results.Ok(modpack);
@@ -68,7 +68,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    return Results.NotFound("MODPACK não encontrado.");
+                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 await mongoDbService.UpdateKeyPairAsync(id, request);
@@ -78,10 +78,15 @@ namespace MinecraftServer.Api.Routes
 
             app.MapPost(BaseUrl + "/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
-                request.DatetimeCreatAt = DateTime.Now;
-                await mongoDbService.CreateAsync(request.ToMap());
+                var modpack = await mongoDbService.GetAsync<ModPackModel>(ObjectId.Parse(request.Id));
+                if (modpack == null)
+                {
+                    request.DatetimeCreatAt = DateTime.Now;
+                    await mongoDbService.CreateAsync(request.ToMap());
+                }
 
                 return Results.Ok();
+
             }).WithTags("ModPack Manager");
 
             app.MapPost(BaseUrl + "/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,[FromServices] ModPackMongoDBService mongoDbService) =>
@@ -90,7 +95,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    return Results.NotFound("MODPACK não encontrado.");
+                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
                 string outputPath = Path.Combine(path, modpack.Directory);

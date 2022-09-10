@@ -18,26 +18,24 @@ namespace MinecraftServer.Api.Middlewares
                 {
 
                     context.Response.ContentType = "application/json";
-
                     var error = context.Features.Get<IExceptionHandlerPathFeature>();
-
-
-
+                    CasimiroMessage fraseCasimiro;
                     switch (error?.Error)
                     {
                         case GenericValidateException:
                             var genericValidate = (GenericValidateException)error.Error;
                             context.Response.StatusCode = (int)genericValidate.Type;
-                            var fraseCasimiro = ObterFraseDeEfeitoCasimiro(genericValidate);
-                            await context.Response.WriteAsJsonAsync(JsonSerializer.Serialize(fraseCasimiro));
+                            fraseCasimiro = ObterFraseDeEfeitoCasimiro(genericValidate);
+                            await context.Response.WriteAsJsonAsync(fraseCasimiro);
+                        break;
 
+                        case Exception:                   
+                            context.Response.StatusCode = 500;
+                            var genericException = (Exception)error.Error;
+                            fraseCasimiro = new CasimiroMessage(ExceptionType.Generico, genericException.StackTrace, genericException.Message);
+                            await context.Response.WriteAsJsonAsync(fraseCasimiro);
                             break;
                     }
-
-
-
-
-
                 });
             });
 
@@ -53,28 +51,17 @@ namespace MinecraftServer.Api.Middlewares
         private const string STACKOVERFLOW_URL = "https://stackoverflow.com/search?q=";
 
         private List<string> FrasesCasimiroValidacao = new List<string>() { "Meteu essa?", "Isso que dá gastar dinheiro com merda!",
-                        "DENTROOOOO! Só que não, né doidão?!", "Nerdola meteu essa. kkkkkkk", "Porra. Cartão amarelo, doidão. Faz certo que dá certo." };
+                        "DENTROOOOO! Só que não, né doidão?!", "Nerdola meteu o dado errado. kkkkkkk", "Cartão amarelo, doidão. Faz o teu que dá certo." };
 
-        private List<string> FrasesCasimiroErroGenerico = new List<string>() { "Todo dia sai na rua dois otários. Hoje você além de otário, quebrou o servidor",
-                "hmmmmm, que papinho, hein?!", "Porra mané, nem se eu fosse um corsa eu capotava assim.", "Muito otário, mané. Toma um link do stackoverflow pra ficar esperto."};
+        private List<string> FrasesCasimiroErroGenerico = new List<string>() { "Todo dia sai na rua dois otários. Hoje você além de otário, quebrou o servidor.",
+                "hmmmmm, que papinho, hein?!", "Porra mané, nem se eu fosse um corsa capotava assim.", "Meteu essa, doidão? Toma um link do stackoverflow pra ficar esperto."};
 
         public string Frase { get; set; }
         public string StackOverFlow { get; set; }
         public string StackTrace { get; set; }
 
-        public CasimiroMessage()
-        {
-            Frase = "Porra, mané. Meteu essa? Nem sei que porra é essa.";
-        }
-
-        public CasimiroMessage(string frase)
-        {
-            Frase = frase;
-        }
-
         public CasimiroMessage(ExceptionType type, string stackTrace, string errorMessage)
         {
-            StackOverFlow = "Que papinho, hein?! Não fez merda hoje.";
             Random rnd;
             string fraseGenerica = "";
             switch (type)
@@ -90,8 +77,9 @@ namespace MinecraftServer.Api.Middlewares
                 case ExceptionType.Validacao:
                     rnd = new Random();
                     fraseGenerica = FrasesCasimiroValidacao[rnd.Next(FrasesCasimiroValidacao.Count())];
-                    Frase = fraseGenerica;
-                    StackTrace = stackTrace;
+                    Frase = $"\"{errorMessage}\" {fraseGenerica}.";
+                    StackOverFlow = "Que papinho, hein?! Não fez merda hoje. Nem vou te mandar o que achei aqui sobre isso.";
+                    StackTrace = "Vou te aliviar dessa vez, nerdola.";
                     break;
             }
         }
