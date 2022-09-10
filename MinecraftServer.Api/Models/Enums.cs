@@ -4,8 +4,11 @@ namespace MinecraftServer.Api.Models
 {
     public enum SystemEnum
     {
+        [EnumMember(Value = "windows")]
         WINDOWS,
+        [EnumMember(Value = "linux")]
         LINUX,
+        [EnumMember(Value = "mac")]
         MAC
     }
 

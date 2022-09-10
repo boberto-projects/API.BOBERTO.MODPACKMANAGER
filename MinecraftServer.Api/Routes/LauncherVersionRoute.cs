@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.RequestModels;
@@ -23,7 +24,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (ultimoLauncher == null)
                 {
-                    return Results.NotFound("Config não encontrado.");
+                    throw new GenericValidateException(ExceptionType.Validacao, "Config não encontrado.");
                 }
 
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);
@@ -49,7 +50,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok(ultimoLauncher);
             }).WithTags("Launcher Version");
              
-            app.MapPost(BaseUrl + "/upload/{system}", async (HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig, [FromRoute] SystemEnum system, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{system}", async (HttpRequest request, [FromRoute] SystemEnum system, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var fields = new Dictionary<string, object>();
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
@@ -57,7 +58,8 @@ namespace MinecraftServer.Api.Routes
 
                 if (ultimoLauncher == null)
                 {
-                    return Results.NotFound("Config não encontrado.");
+                    //trocar pra negócio depois
+                    throw new CasimiroException(ExceptionType.Validacao, "Config não encontrado.");
                 }
 
                 string path = Path.Combine(Assembly.GetExecutingAssembly().Location, apiConfig.Value.CaminhoLauncherVersion);
