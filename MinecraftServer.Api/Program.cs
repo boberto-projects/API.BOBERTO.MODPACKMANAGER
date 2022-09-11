@@ -19,7 +19,7 @@ builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
             .Build();
 
 
@@ -51,7 +51,10 @@ app.CriarMiddlewareCasimiro();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
-    return "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
+    var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
+    var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+    return ultimoDeploy + Environment.NewLine + ambiente;
 }).WithTags("Health Check");
 
 //app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
