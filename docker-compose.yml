@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: MinecraftServer.Api/Dockerfile
     ports:
-    - "5000:80"
+    - "5000:5555"
     links:
     - "redis_service"
     - "mongo_service"

@@ -3,12 +3,10 @@
     "Docker Compose": {
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
-      "composeLaunchAction": "None",
-      "composeLaunchServiceName": "minecraftserver.api",
       "serviceActions": {
         "minecraftserver.api": "StartDebugging",
-        "redis_service": "StartWithoutDebugging",
-        "mongo_service": "StartWithoutDebugging"
+        "redis_compose": "StartWithoutDebugging",
+        "mongo": "StartWithoutDebugging"
       }
     }
   }
