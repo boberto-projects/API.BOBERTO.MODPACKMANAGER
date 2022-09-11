@@ -22,7 +22,7 @@ Dokku é uma plataforma como serviço extensível e de código aberto que é exe
 
 2.     dokku builder-dockerfile:set api-minecraft-server-modpack-manager  dockerfile-path MinecraftServer.Api/Dockerfile
 
-3.     dokku domains:add api-minecraft-server-modpack-manager <domain>
+3.     dokku domains:add api-minecraft-server-modpack-manager 159.223.141.136
 3.     dokku proxy:ports-add api-minecraft-server-modpack-manager http:5000:80
 
 ## Demonstração com Dokku

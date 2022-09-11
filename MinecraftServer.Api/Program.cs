@@ -3,7 +3,6 @@ using MinecraftServer.Api;
 using MinecraftServer.Api.Services;
 using MinecraftServer.Api.Routes;
 using MinecraftServer.Api.Middlewares;
-using System.Text.Json.Serialization;
 using MinecraftServer.Api.Seeds;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Http.Features;
