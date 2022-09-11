@@ -7,7 +7,11 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <Configurations>Release;Development;Production</Configurations>
+    <Configurations>Development;Production</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

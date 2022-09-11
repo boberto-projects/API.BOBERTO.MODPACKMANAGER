@@ -10,10 +10,10 @@ COPY ["MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
-RUN dotnet build "MinecraftServer.Api.csproj" -c Production -o /app/build
+RUN dotnet build "MinecraftServer.Api.csproj" -c Development -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "MinecraftServer.Api.csproj" -c Production -o /app/publish
+RUN dotnet publish "MinecraftServer.Api.csproj" -c Development -o /app/publish
 
 FROM base AS final
 WORKDIR /app

@@ -19,7 +19,7 @@ services:
   redis_service:
     image: redis
     restart: always
-    #hostname: redis
+    hostname: redis
     ports:
     - "6379:6379"
 
