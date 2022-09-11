@@ -28,7 +28,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
+                    throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 var idRedis = id.ToString();
@@ -49,7 +49,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
+                    throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 return Results.Ok(modpack);
@@ -68,7 +68,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
+                    throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
                 await mongoDbService.UpdateKeyPairAsync(id, request);
@@ -95,7 +95,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (modpack == null)
                 {
-                    throw new GenericValidateException(ExceptionType.Validacao, "MODPACK não encontrado.");
+                    throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
                 string outputPath = Path.Combine(path, modpack.Directory);

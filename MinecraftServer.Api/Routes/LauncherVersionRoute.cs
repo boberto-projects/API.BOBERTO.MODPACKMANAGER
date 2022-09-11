@@ -24,7 +24,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (ultimoLauncher == null)
                 {
-                    throw new GenericValidateException(ExceptionType.Validacao, "Config não encontrado.");
+                    throw new CasimiroException(ExceptionType.Validacao, "Config não encontrado.");
                 }
 
                 await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);

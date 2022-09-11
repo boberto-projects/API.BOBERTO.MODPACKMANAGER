@@ -22,8 +22,8 @@ namespace MinecraftServer.Api.Middlewares
                     CasimiroMessage fraseCasimiro;
                     switch (error?.Error)
                     {
-                        case GenericValidateException:
-                            var genericValidate = (GenericValidateException)error.Error;
+                        case CasimiroException:
+                            var genericValidate = (CasimiroException)error.Error;
                             context.Response.StatusCode = (int)genericValidate.Type;
                             fraseCasimiro = ObterFraseDeEfeitoCasimiro(genericValidate);
                             await context.Response.WriteAsJsonAsync(fraseCasimiro);
@@ -39,7 +39,7 @@ namespace MinecraftServer.Api.Middlewares
                 });
             });
 
-            CasimiroMessage ObterFraseDeEfeitoCasimiro(GenericValidateException genericError)
+            CasimiroMessage ObterFraseDeEfeitoCasimiro(CasimiroException genericError)
             {
                 return new CasimiroMessage(genericError.Type, genericError.StackTrace, genericError.Message);
             }
