@@ -23,7 +23,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": ""
+        "ASPNETCORE_ENVIRONMENT": "Production"
       },
       "publishAllPorts": true
     }

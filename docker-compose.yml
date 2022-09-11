@@ -3,12 +3,11 @@ version: '3.4'
 services:
   minecraftserver.api:
     image: ${DOCKER_REGISTRY-}minecraftserverapi
-    ports: 
-    - "5000:80"
-    restart: always
     build:
       context: .
       dockerfile: MinecraftServer.Api/Dockerfile
+    ports:
+    - "5000:80"
     links:
     - "redis_service"
     - "mongo_service"
@@ -28,4 +27,4 @@ services:
     restart: always
     container_name: mongo
     ports:
-      - "27017:27017"
+        - "27017:27017"

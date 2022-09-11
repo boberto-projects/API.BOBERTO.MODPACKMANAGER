@@ -3,13 +3,11 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>375959e7-a5a7-4457-a5a7-6959041c537f</ProjectGuid>
+    <ProjectGuid>eacf6806-d787-452b-b0ef-7ac0c3a1c7be</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>minecraftserver.api</DockerServiceName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'" />
   <ItemGroup>
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
