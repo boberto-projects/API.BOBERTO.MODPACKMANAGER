@@ -25,7 +25,7 @@ namespace MinecraftServer.Api
             foreach(var item in arquivos)
             {
                 var modpackInfo = new ModPackFileInfo(item);
-                modpackInfo.CorrigirCaminho(modpack.Directory, item.Replace(caminho + @"/", ""), apiConfig.Value.FilesDirUrl);
+                modpackInfo.CorrigirCaminho(modpack.Directory, item.Replace(caminho + @"/", ""), apiConfig.Value.ModPackDirUrl);
                 listaArquivos.Add(modpackInfo);
             }
       

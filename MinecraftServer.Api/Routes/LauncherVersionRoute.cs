@@ -58,8 +58,7 @@ namespace MinecraftServer.Api.Routes
 
                 if (ultimoLauncher == null)
                 {
-                    //trocar pra negócio depois
-                    throw new CasimiroException(ExceptionType.Validacao, "Config não encontrado.");
+                    throw new CasimiroException(ExceptionType.Negocio, "Config não encontrado.");
                 }
 
                 string path = Path.Combine(Assembly.GetExecutingAssembly().Location, apiConfig.Value.CaminhoLauncherVersion);
@@ -80,7 +79,7 @@ namespace MinecraftServer.Api.Routes
                     file.CopyTo(stream);
                 }
 
-                var url = $"http://localhost/{fileNameWithPath}";
+                var url = $"{apiConfig.Value.VersionDirUrl}/{fileNameWithPath}";
                 switch (system)
                 {
                     case SystemEnum.WINDOWS:

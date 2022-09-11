@@ -4,7 +4,8 @@
     {
         public string CaminhoModPacks { get; set; }
         public string CaminhoLauncherVersion  { get; set; }
-        public string FilesDirUrl { get; set; }
+        public string ModPackDirUrl { get; set; }
+        public string VersionDirUrl { get; set; }
         public Authorization Authorization { get; set; }
     }
 
