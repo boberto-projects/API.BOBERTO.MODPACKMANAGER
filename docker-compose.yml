@@ -4,7 +4,7 @@ services:
   minecraftserver.api:
     image: ${DOCKER_REGISTRY-}minecraftserverapi
     ports: 
-    - "5000:5555"
+    - "5000:80"
     restart: always
     build:
       context: .
