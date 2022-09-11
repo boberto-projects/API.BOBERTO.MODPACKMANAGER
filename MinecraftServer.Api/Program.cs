@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Http.Features;
 using MinecraftServer.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -45,7 +46,6 @@ builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").
 
 var app = builder.Build();
 
-
 app.CriarMiddlewareCasimiro();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
@@ -59,6 +59,8 @@ ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
 ConfigRoute.CriarRota(app);
 
+CriarPastaModPacks();
+CriarPastaLauncherVersions();
 
 if (app.Environment.IsDevelopment())
 {
@@ -85,6 +87,24 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
 
 app.Run();
 
+void CriarPastaModPacks()
+{
+    var dirMods = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value);
+    if (Directory.Exists(dirMods) == false)
+    {
+        Directory.CreateDirectory(dirMods);
+    }
+};
+
+void CriarPastaLauncherVersions()
+{
+    var dirLauncherVersions = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value);
+    if (Directory.Exists(dirLauncherVersions) == false)
+    {
+        Directory.CreateDirectory(dirLauncherVersions);
+    }
+};
+
 public static class MongoDBServiceDI {
 
     public static void RegistrarDI(this IServiceCollection services, IConfigurationRoot config)
@@ -99,3 +119,6 @@ public static class MongoDBServiceDI {
         createVersionCollection.CreateVersionDefaulCollection(sp);
     }
 }
+
+
+

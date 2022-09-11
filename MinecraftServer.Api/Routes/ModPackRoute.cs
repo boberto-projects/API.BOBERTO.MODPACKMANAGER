@@ -97,6 +97,7 @@ namespace MinecraftServer.Api.Routes
                 {
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
+
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
                 string outputPath = Path.Combine(path, modpack.Directory);
                 
