@@ -10,20 +10,20 @@ services:
       context: .
       dockerfile: MinecraftServer.Api/Dockerfile
     links:
-    - "redis_compose"
-    - "mongo"
+    - "redis_service"
+    - "mongo_service"
     depends_on:
-    - "redis_compose"
-    - "mongo"
+    - "redis_service"
+    - "mongo_service"
 
-  redis_compose:
+  redis_service:
     image: redis
     restart: always
-    hostname: redis
+    #hostname: redis
     ports:
     - "6379:6379"
 
-  mongo:
+  mongo_service:
     image: mvertes/alpine-mongo
     restart: always
     container_name: mongo

@@ -7,26 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftServer.Api", "Mine
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{375959E7-A5A7-4457-A5A7-6959041C537F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftServer.Testes", "..\MinecraftServer.Testes\MinecraftServer.Testes.csproj", "{6A663DD8-3048-4A20-82EE-9D99CD90CEDA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Development|Any CPU = Development|Any CPU
+		Production|Any CPU = Production|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{375959E7-A5A7-4457-A5A7-6959041C537F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{375959E7-A5A7-4457-A5A7-6959041C537F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{375959E7-A5A7-4457-A5A7-6959041C537F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{375959E7-A5A7-4457-A5A7-6959041C537F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A663DD8-3048-4A20-82EE-9D99CD90CEDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A663DD8-3048-4A20-82EE-9D99CD90CEDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A663DD8-3048-4A20-82EE-9D99CD90CEDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A663DD8-3048-4A20-82EE-9D99CD90CEDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Development|Any CPU.ActiveCfg = development|Any CPU
+		{7095BC39-4DBF-44FB-83D1-E4590C29A33E}.Production|Any CPU.ActiveCfg = Production|Any CPU
+		{375959E7-A5A7-4457-A5A7-6959041C537F}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{375959E7-A5A7-4457-A5A7-6959041C537F}.Production|Any CPU.ActiveCfg = Production|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
