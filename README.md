@@ -22,7 +22,7 @@ Dokku é uma plataforma como serviço extensível e de código aberto que é exe
 
 2.     dokku builder-dockerfile:set minimal-api-dokku-test  dockerfile-path MinecraftServer.Api/Dockerfile
 
-3.     dokku proxy:ports-add minimal-api-dokku-test http:5000:5555
+3.     dokku proxy:ports-add minimal-api-dokku-test http:5001:80
 
 4.     dokku domains:add minimal-api-dokku-test <domain>
 
