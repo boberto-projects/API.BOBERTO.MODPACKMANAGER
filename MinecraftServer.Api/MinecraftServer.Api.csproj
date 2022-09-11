@@ -21,7 +21,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Exec Command="copy appsettings.$(Configuration).json appsettings.json" />
-	</Target>
+	</Target>-->
 </Project>

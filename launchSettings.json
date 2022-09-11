@@ -4,6 +4,9 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "composeLaunchAction": "None",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
       "composeLaunchServiceName": "minecraftserver.api",
       "serviceActions": {
         "minecraftserver.api": "StartDebugging",

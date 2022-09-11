@@ -18,7 +18,9 @@ builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
 
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json").Build();
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+            .Build();
 
 
 builder.Services.AddEndpointsApiExplorer();
