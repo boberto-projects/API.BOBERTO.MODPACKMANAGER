@@ -3,6 +3,7 @@ version: '3.4'
 services:
   minecraftserver.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
+#      - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "80"
+    - "5000:5555"

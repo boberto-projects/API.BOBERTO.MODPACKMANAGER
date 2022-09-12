@@ -7,26 +7,33 @@ namespace MinecraftServer.Api.Seeds
     {
         public static void CreateConfigDefaulCollection(IServiceProvider services)
         {
-            var mongoDBService = services.GetService<LauncherConfigMongoDBService>();
-
-            var config = mongoDBService.GetAsync<ConfigModel>().Result;
-            var lastConfig = config.FirstOrDefault();
-
-            if (lastConfig != null)
+            try
             {
-                return;
+                var mongoDBService = services.GetService<LauncherConfigMongoDBService>();
+
+                var config = mongoDBService.GetAsync<ConfigModel>().Result;
+                var lastConfig = config.FirstOrDefault();
+
+                if (lastConfig != null)
+                {
+                    return;
+                }
+
+                var defaultConfig = new ConfigModel()
+                {
+                    Maintenance = false,
+                    MaintenanceMessage = "Hora da manutenção, amiguinhos!",
+                    Offline = false,
+                    ClientId = "",
+                    Java = false,
+                    Ignored = new List<string> { "options.txt", "log" }
+                };
+                mongoDBService.CreateAsync(defaultConfig).Wait();
             }
-
-            var defaultConfig = new ConfigModel()
+            catch (Exception e)
             {
-                Maintenance = false,
-                MaintenanceMessage = "Hora da manutenção, amiguinhos!",
-                Offline = false,
-                ClientId = "",
-                Java = false,
-                Ignored = new List<string> { "options.txt", "log" }
-            };
-             mongoDBService.CreateAsync(defaultConfig).Wait();
+
+            }
         }
     }
 }

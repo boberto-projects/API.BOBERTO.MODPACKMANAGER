@@ -3,10 +3,12 @@ using MinecraftServer.Api.Services;
 
 namespace MinecraftServer.Api.Seeds
 {
-    
-        public static class createVersionCollection
+
+    public static class createVersionCollection
+    {
+        public static void CreateVersionDefaulCollection(IServiceProvider services)
         {
-            public static void CreateVersionDefaulCollection(IServiceProvider services)
+            try
             {
                 var mongoDBService = services.GetService<LauncherVersionMongoDBService>();
 
@@ -18,13 +20,13 @@ namespace MinecraftServer.Api.Seeds
                     return;
                 }
 
-            var defaultConfig = new LauncherVersionModel()
-            {
-                Packages = new LauncherVersionModel.PackagesEntity()
+                var defaultConfig = new LauncherVersionModel()
                 {
-                    Win64 = new LauncherVersionModel.Win64Entity()
+                    Packages = new LauncherVersionModel.PackagesEntity()
                     {
-                        Url = ""
+                        Win64 = new LauncherVersionModel.Win64Entity()
+                        {
+                            Url = ""
                         },
                         Linux64 = new LauncherVersionModel.Linux64Entity()
                         {
@@ -37,7 +39,12 @@ namespace MinecraftServer.Api.Seeds
                     },
                     Version = "1.0.0"
                 };
-            mongoDBService.CreateAsync(defaultConfig).Wait();
-            } 
+                mongoDBService.CreateAsync(defaultConfig).Wait();
+            }
+            catch (Exception e)
+            {
+            }
+        }
+ 
     }
 }

@@ -8,8 +8,6 @@ services:
       dockerfile: MinecraftServer.Api/Dockerfile
     ports:
     - "5000:5555"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
     links:
     - "redis_service"
     - "mongo_service"
@@ -29,4 +27,4 @@ services:
     restart: always
     container_name: mongo
     ports:
-        - "27017:27017"
+    - "27017:27017"
