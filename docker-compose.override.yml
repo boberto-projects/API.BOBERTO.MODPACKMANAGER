@@ -1,7 +1,0 @@
-version: '3.4'
-
-services:
-  minecraftserver.api:
-    environment:
-#     - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_ENVIRONMENT=Development
