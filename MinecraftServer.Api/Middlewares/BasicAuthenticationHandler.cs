@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 namespace MinecraftServer.Api.Middlewares
@@ -14,13 +16,19 @@ namespace MinecraftServer.Api.Middlewares
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            ///TODO: this is a base to use before identity class.
+            var claims = new[] { new Claim(ClaimTypes.Name, "") };
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
             if (_apiConfig.Value.Authorization.Activate == false)
             {
-                return Task.FromResult(AuthenticateResult.Fail("Api key não informada"));
+                return Task.FromResult(AuthenticateResult.Success(ticket));
             }
-     
+
             if (Request.Headers.TryGetValue(_apiConfig.Value.Authorization.ApiHeader, out
-                   var extractedApiKey))
+                   var extractedApiKey) == false)
             {
                 return Task.FromResult(AuthenticateResult.Fail("Api key não informada"));
             }
@@ -30,7 +38,7 @@ namespace MinecraftServer.Api.Middlewares
                 return Task.FromResult(AuthenticateResult.Fail("Não autorizado"));
             }
 
-            return Task.FromResult(AuthenticateResult.NoResult());
+            return Task.FromResult(AuthenticateResult.Success(ticket));
         }
     } 
 }
