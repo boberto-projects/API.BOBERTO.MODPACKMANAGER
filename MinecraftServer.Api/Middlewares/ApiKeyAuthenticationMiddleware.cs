@@ -42,4 +42,5 @@ namespace MinecraftServer.Api.Middlewares
             await _next(context);
         }
     }
+
 }

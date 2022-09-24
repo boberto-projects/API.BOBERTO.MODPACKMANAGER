@@ -68,18 +68,18 @@ namespace MinecraftServer.Api.Services
             var changesJson = JsonSerializer.Serialize(dictionary);
             var changesDocument = BsonDocument.Parse(changesJson);
 
-            foreach (var item in changesDocument)
-            {
-                if (update == null)
-                {
-                    var builder = Builders<BsonDocument>.Update;
-                    update = builder.Set(item.Name, item.Value);
-                }
-                else
-                {
-                    update = update.Set(item.Name, item.Value);
-                }
-            }
+            //foreach (var item in changesDocument)
+            //{
+            //    if (update == null)
+            //    {
+            //        var builder = Builders<BsonDocument>.Update;
+            //        update = builder.Set(item.Name, item.Value);
+            //    }
+            //    else
+            //    {
+            //        update = update.Set(item.Name, item.Value);
+            //    }
+            //}
 
             var updateOptions = new UpdateOptions
             {

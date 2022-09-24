@@ -61,15 +61,15 @@ namespace MinecraftServer.Api.Routes
                     throw new CasimiroException(ExceptionType.Negocio, "Config não encontrado.");
                 }
 
-                string path = Path.Combine(Assembly.GetExecutingAssembly().Location, apiConfig.Value.CaminhoLauncherVersion);
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion);
 
-                if (!Directory.Exists(path))
+                if (Directory.Exists(path) == false)
                 {
                     Directory.CreateDirectory(path);
                 }
 
                 var file = request.Form.Files.First();
-
+     
                 FileInfo fileInfo = new FileInfo(file.FileName);
 
                 string fileNameWithPath = Path.Combine(path, file.FileName);
@@ -79,25 +79,25 @@ namespace MinecraftServer.Api.Routes
                     file.CopyTo(stream);
                 }
 
-                var url = $"{apiConfig.Value.VersionDirUrl}/{fileNameWithPath}";
+                var url = $"{apiConfig.Value.VersionDirUrl}/{Path.GetFileName(fileNameWithPath)}";
                 switch (system)
                 {
                     case SystemEnum.WINDOWS:
-                        fields.Add("packages.Win64", new LauncherVersionModel.Win64Entity()
+                        fields.Add("packages.win64", new LauncherVersionModel.Win64Entity()
                         {
                             Url = url,
                         });
                     break;
 
                     case SystemEnum.MAC:
-                        fields.Add("packages.Mac64", new LauncherVersionModel.Mac64Entity()
+                        fields.Add("packages.mac64", new LauncherVersionModel.Mac64Entity()
                         {
                             Url = url,
                         });
                     break;
 
                     case SystemEnum.LINUX:
-                        fields.Add("packages.Linux64", new LauncherVersionModel.Linux64Entity()
+                        fields.Add("packages.linux64", new LauncherVersionModel.Linux64Entity()
                         {
                             Url = url,
                         });
