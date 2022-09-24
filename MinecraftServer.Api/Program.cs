@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http.Features;
 using MinecraftServer.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -22,7 +24,10 @@ var config = new ConfigurationBuilder()
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json")
             .Build();
 
-//.AddJsonFile("appsettings.Development.json", optional: true)
+builder.Services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+                ("BasicAuthentication", null);
+builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,8 +41,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
 builder.Services.AddSingleton<ApiCicloDeVida>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
-builder.Services.AddDirectoryBrowser();
 
+builder.Services.AddDirectoryBrowser();
 builder.Services.Configure<FormOptions>(x =>
 {
     x.ValueLengthLimit = int.MaxValue;
@@ -48,7 +53,11 @@ builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").
 
 var app = builder.Build();
 
+
 app.CriarMiddlewareCasimiro();
+app.UseAuthentication();
+app.UseAuthorization();
+//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
@@ -58,7 +67,6 @@ app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
     return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente;
 }).WithTags("Health Check");
 
-//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
@@ -67,11 +75,13 @@ ConfigRoute.CriarRota(app);
 CriarPastaModPacks();
 CriarPastaLauncherVersions();
 
-//if (app.Environment.IsDevelopment())
-//{
+
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
+
 
 app.UseStaticFiles(new StaticFileOptions
 {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Exceptions;
@@ -8,9 +9,6 @@ using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
 using System.IO.Compression;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -62,7 +60,7 @@ namespace MinecraftServer.Api.Routes
             }).WithTags("ModPack Manager");
 
 
-            app.MapPut(BaseUrl + "/update/{id}", async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl + "/update/{id}", [Authorize] async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -76,7 +74,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok();
             }).WithTags("ModPack Manager");
 
-            app.MapPost(BaseUrl + "/add", async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/add", [Authorize] async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(ObjectId.Parse(request.Id));
                 if (modpack == null)
@@ -89,7 +87,7 @@ namespace MinecraftServer.Api.Routes
 
             }).WithTags("ModPack Manager");
 
-            app.MapPost(BaseUrl + "/upload/{id}", async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,[FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{id}", [Authorize] async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,[FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 

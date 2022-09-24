@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.Services;
 using MongoDB.Bson;
@@ -24,7 +25,7 @@ namespace MinecraftServer.Api.Routes
             app.MapGet(BaseUrl, GetLauncherConfig)
                 .WithTags("Launcher Config");
 
-            app.MapPut(BaseUrl, async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherConfigMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl, [Authorize] async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherConfigMongoDBService mongoDbService) =>
             {
                 var config = await mongoDbService.GetAsync<ConfigModel>();
                 var lastConfig = config.FirstOrDefault();

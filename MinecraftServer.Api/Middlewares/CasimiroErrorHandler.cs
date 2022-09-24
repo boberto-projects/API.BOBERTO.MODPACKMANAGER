@@ -9,7 +9,10 @@ namespace MinecraftServer.Api.Middlewares
 {
     public static class CasimiroErrorHandler
     {
-
+        /// <summary>
+        /// Só de zoeira. #NÃOMEPROCESSACAZÉ
+        /// </summary>
+        /// <param name="app"></param>
         public static void CriarMiddlewareCasimiro(this WebApplication app)
         {
             app.UseExceptionHandler(exceptionHandlerApp =>

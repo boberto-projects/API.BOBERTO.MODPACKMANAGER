@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
@@ -17,7 +18,7 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
-            app.MapPut(BaseUrl, async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl, [Authorize] async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
                 var ultimoLauncher = launcherVersion.FirstOrDefault();
@@ -32,7 +33,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok();
             }).WithTags("Launcher Version");
 
-            app.MapPost(BaseUrl, async (LauncherVersionRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl, [Authorize] async (LauncherVersionRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
                 var ultimoLauncher = launcherVersion.FirstOrDefault();
@@ -50,7 +51,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok(ultimoLauncher);
             }).WithTags("Launcher Version");
              
-            app.MapPost(BaseUrl + "/upload/{system}", async (HttpRequest request, [FromRoute] SystemEnum system, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{system}", [Authorize] async (HttpRequest request, [FromRoute] SystemEnum system, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
                 var fields = new Dictionary<string, object>();
                 var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
