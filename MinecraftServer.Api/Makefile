@@ -1,4 +1,5 @@
-﻿echo "Baixando dependências"
+﻿#!/bin/sh
+echo "Baixando dependencias"
 apt update -y
 apt install jq -y
 tmp=$(mktemp)
