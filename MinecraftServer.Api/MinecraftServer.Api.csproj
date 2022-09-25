@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Makefile">
+    <Content Include="Makefile.sh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -28,6 +28,9 @@
     <PackageReference Include="MongoDB.Driver" Version="2.17.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
+	
+	<PropertyGroup Condition="'$(ASPNETCORE_ENVIRONMENT)' == 'Development'">
+		<PreBuildEvent>$(ProjectDir)\Makefile.sh</PreBuildEvent>
+	</PropertyGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1production_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>
