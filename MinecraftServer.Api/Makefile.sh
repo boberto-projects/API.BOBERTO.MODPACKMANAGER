@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env bash
 echo "Baixando dependencias"
-echo "testeeee" >> "teste.txt"
+echo "Testando daeawsae" >> "teste.txt"
 apt update -y
 apt install jq -y
 tmp=$(mktemp)
