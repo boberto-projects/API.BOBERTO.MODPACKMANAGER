@@ -12,7 +12,7 @@ COPY ["MinecraftServer.Api/appsettings.Production.json","MinecraftServer.Api/Mak
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN echo "Some line to add to a file" >> MinecraftServer.Api/teste.txt
 RUN cd ./MinecraftServer.Api && ls
-RUN ./MinecraftServer.Api/Makefile
+RUN ["chmod", "+x", "./MinecraftServer.Api/Makefile"]
 RUN cd ./MinecraftServer.Api && ls && cat $CONFIG_FILE
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
