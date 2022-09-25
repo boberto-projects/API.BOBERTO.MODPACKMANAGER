@@ -9,7 +9,7 @@ COPY ["MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
-RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618:
+RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618
 
 
 FROM build AS publish
@@ -19,6 +19,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 RUN chmod +x Makefile
-RUN Makefile
+RUN ./Makefile
 RUN cat appsettings.Production.json
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
