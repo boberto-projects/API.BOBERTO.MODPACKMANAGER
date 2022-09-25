@@ -30,7 +30,7 @@
   </ItemGroup>
 	
 	<PropertyGroup Condition="'$(ASPNETCORE_ENVIRONMENT)' == 'Production'">
-		<PreBuildEvent>$(ProjectDir)\Makefile.sh</PreBuildEvent>
+		<PreBuildEvent>$(ProjectDir)\..\..\Makefile.sh</PreBuildEvent>
 	</PropertyGroup>
 
 </Project>
