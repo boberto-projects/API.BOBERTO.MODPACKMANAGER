@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 RUN ls
 RUN chmod +x Makefile
-RUN ./Makefile
+SHELL ["/bin/bash", "Makefile"] 
 RUN echo "TESTANDO --- " && ls
 RUN cat appsettings.Production.json
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
