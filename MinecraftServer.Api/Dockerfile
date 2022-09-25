@@ -20,7 +20,7 @@ RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:C
 
 
 FROM build AS publish
-RUN ls
+RUN cat appsettings.Production.json
 RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 FROM base AS final
