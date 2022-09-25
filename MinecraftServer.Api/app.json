@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dokku": {
-      "predeploy": "",
+      "predeploy": "bash Makefile",
       "postdeploy": ""
     },
     "postdeploy": ""
