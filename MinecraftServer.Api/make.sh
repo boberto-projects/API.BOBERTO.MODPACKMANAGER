@@ -1,5 +1,5 @@
 ﻿#!/bin/bash
-sudo apt-get install jq
+apt install jq
 CONFIG_FILE="appsettings.Production.json"
 tmp=$(mktemp)
 jq '.ConnectionStrings.Redis = "'$REDIS_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
