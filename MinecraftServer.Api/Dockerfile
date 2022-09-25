@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
-RUN chmod +x ./MinecraftServer.Api/Makefile && bash ./MinecraftServer.Api/Makefile
+RUN chmod +x MinecraftServer.Api/Makefile && bash MinecraftServer.Api/Makefile
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
 RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build
