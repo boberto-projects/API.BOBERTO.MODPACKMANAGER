@@ -10,10 +10,10 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["MinecraftServer.Api/appsettings.Production.json","MinecraftServer.Api/Makefile","MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
-RUN echo "Some line to add to a file" >> teste.txt
+RUN echo "Some line to add to a file" >> MinecraftServer.Api/teste.txt
 RUN ls
-RUN chmod +x Makefile
-RUN ./Makefile
+RUN chmod +x MinecraftServer.Api/Makefile
+RUN ./MinecraftServer.Api/Makefile
 RUN cat $CONFIG_FILE
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
