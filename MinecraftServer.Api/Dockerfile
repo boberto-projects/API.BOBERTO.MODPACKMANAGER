@@ -17,5 +17,4 @@ RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN chmod +x ./make.sh && bash ./make.sh
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
