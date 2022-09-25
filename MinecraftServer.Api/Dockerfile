@@ -21,5 +21,6 @@ COPY --from=publish /app/publish .
 RUN ls
 RUN chmod +x Makefile
 RUN ./Makefile
+RUN echo "teste" && ls
 RUN cat appsettings.Production.json
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
