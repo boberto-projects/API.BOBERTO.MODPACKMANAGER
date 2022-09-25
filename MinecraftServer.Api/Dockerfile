@@ -21,10 +21,10 @@ RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowa
 
 FROM base AS final
 WORKDIR /app
-RUN   echo "Some line to add to a file" >> teste.txt
-RUN echo arquivos antigos && cd MinecraftServer.Api/ && ls
-RUN chmod +x MinecraftServer.Api/Makefile
-RUN ./MinecraftServer.Api/Makefile
+RUN echo "Some line to add to a file" >> teste.txt
+RUN chmod +x Makefile
+RUN ./Makefile
 RUN cat $CONFIG_FILE
+COPY $CONFIG_FILE .
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
