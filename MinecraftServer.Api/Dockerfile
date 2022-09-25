@@ -2,17 +2,17 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 ENV TZ="America/Sao_Paulo"
-ARG CONFIG_FILE=./MinecraftServer.Api/appsettings.Production.json
 #teste
 #ARG disableWarnings=CS8602,CS0168,CS8618,CS8604,CS8603
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ARG CONFIG_FILE=./MinecraftServer.Api/appsettings.Production.json
 WORKDIR /src
 COPY ["MinecraftServer.Api/appsettings.Production.json","MinecraftServer.Api/Makefile","MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN echo "Some line to add to a file" >> MinecraftServer.Api/teste.txt
-RUN ls
-RUN chmod +x MinecraftServer.Api/Makefile
+RUN cd ./MinecraftServer.Api && ls
+RUN chmod +x ./MinecraftServer.Api/Makefile
 RUN ./MinecraftServer.Api/Makefile
 RUN cat $CONFIG_FILE
 COPY . .
