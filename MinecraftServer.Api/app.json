@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dokku": {
+      "predeploy": "",
+      "postdeploy": "bash make.sh"
+    },
+    "postdeploy": "curl https://some.external.api.service.com/created?state=success"
+  }
+}
