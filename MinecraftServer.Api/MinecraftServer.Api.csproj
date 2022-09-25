@@ -12,14 +12,8 @@
     <BaseIntermediateOutputPath>$(SolutionDir)obj</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <None Remove="Makefile" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Content Include="Makefile">
+    <Content Include="Makefile.sh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
