@@ -8,3 +8,4 @@ jq '.MongoConnections.CollectionSettings[0].ConnectionString = "'$MONGO_URL'"' $
 jq '.MongoConnections.CollectionSettings[1].ConnectionString = "'$MONGO_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
 jq '.MongoConnections.CollectionSettings[2].ConnectionString = "'$MONGO_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
 apt remove jq -y
+exit 0
