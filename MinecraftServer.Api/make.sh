@@ -1,4 +1,4 @@
-﻿#!/bin/bash -x
+﻿#!/usr/bin/env bash
 apt update -y
 apt install jq -y
 CONFIG_FILE="appsettings.Production.json"
