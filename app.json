@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "dokku": {
-      "predeploy": "touch /app/predeploy.test",
-      "postdeploy": "curl https://some.external.api.service.com/deployment?state=success"
-    },
-    "postdeploy": "curl https://some.external.api.service.com/created?state=success"
-  }
-}

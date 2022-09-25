@@ -10,7 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{4529F3B9-FD6D-4A51-9680-91F979181D40}"
 	ProjectSection(SolutionItems) = preProject
 		app.json = app.json
-		appsettings_builder.json = appsettings_builder.json
 		deploy.sh = deploy.sh
 	EndProjectSection
 EndProject
