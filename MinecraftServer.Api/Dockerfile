@@ -21,4 +21,5 @@ COPY --from=publish /app/publish .
 RUN ls
 RUN chmod +x Makefile
 RUN ./Makefile
+RUN cat Makefile
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
