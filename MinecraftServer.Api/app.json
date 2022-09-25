@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dokku": {
-      "predeploy": "",
+      "predeploy": "chmod +x ./make.sh && bash ./make.sh",
       "postdeploy": ""
     },
     "postdeploy": ""
