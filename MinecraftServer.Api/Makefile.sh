@@ -1,5 +1,4 @@
-﻿#!/bin/sh
-echo "Criando appsettings..."
+﻿echo "Criando appsettings..."
 apt update -y
 apt install jq -y
 CONFIG_FILE="appsettings.Production.json"

@@ -7,6 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
+RUN chmod +x ./MinecraftServer.Api/Makefile.sh && bash ./MinecraftServer.Api/Makefile.sh
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
 RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build
@@ -17,5 +18,4 @@ RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN chmod +x ./Makefile.sh && bash ./Makefile.sh
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]
