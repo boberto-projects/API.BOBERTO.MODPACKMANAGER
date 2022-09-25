@@ -1,4 +1,5 @@
 ﻿#!/bin/bash
+apt update
 apt install jq
 CONFIG_FILE="appsettings.Production.json"
 tmp=$(mktemp)
