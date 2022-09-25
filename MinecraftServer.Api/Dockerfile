@@ -13,12 +13,12 @@ RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:C
 
 
 FROM build AS publish
+RUN chmod +x Makefile
+RUN bash -c ./Makefile
+RUN cat appsettings.Production.json
 RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowarn:CS8602,CS0168,CS8618
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN chmod +x Makefile
-RUN ./Makefile
-RUN cat appsettings.Production.json
 ENTRYPOINT ["dotnet", "MinecraftServer.Api.dll"]

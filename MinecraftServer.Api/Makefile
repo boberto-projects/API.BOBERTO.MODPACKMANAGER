@@ -1,5 +1,4 @@
-﻿#!/bin/bash
-echo "Baixando dependências" \
+﻿echo "Baixando dependências" \
 && apt update -y \
 && apt install jq -y \
 && CONFIG_FILE="appsettings.Production.json" \
