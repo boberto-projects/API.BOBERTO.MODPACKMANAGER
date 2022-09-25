@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+﻿#!/bin/bash
 echo "Criando appsettings..."
 apt update -y
 apt install jq -y
