@@ -14,12 +14,14 @@
 
 
   <ItemGroup>
-    <Content Remove="app.json" />
+    <None Remove="Makefile" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <None Include="app.json" />
+    <Content Include="Makefile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
