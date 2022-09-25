@@ -22,6 +22,7 @@ RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowa
 FROM base AS final
 WORKDIR /app
 RUN echo "Some line to add to a file" >> teste.txt
+RUN ls
 RUN chmod +x Makefile
 RUN ./Makefile
 RUN cat $CONFIG_FILE
