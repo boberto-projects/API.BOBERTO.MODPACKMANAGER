@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 ENV TZ="America/Sao_Paulo"
-ARG disableWarnings=CS8602,CS0168,CS8618,CS8604,CS8603
+#ARG disableWarnings=CS8602,CS0168,CS8618,CS8604,CS8603
 ARG CONFIG_FILE=./MinecraftServer.Api/appsettings.Production.json
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
@@ -15,12 +15,12 @@ RUN ./MinecraftServer.Api/Makefile
 RUN cat $CONFIG_FILE
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
-RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:$disableWarnings
+RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 
 FROM build AS publish
 RUN ls
-RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowarn:$disableWarnings
+RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 FROM base AS final
 WORKDIR /app
