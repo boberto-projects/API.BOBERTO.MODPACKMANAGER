@@ -12,7 +12,7 @@ RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN echo arquivos antigos && cd MinecraftServer.Api/ && ls
 RUN chmod +x MinecraftServer.Api/Makefile
 RUN ./MinecraftServer.Api/Makefile
-RUN cat $CONFIG_FILE
+RUN cat {$CONFIG_FILE}
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
 RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
