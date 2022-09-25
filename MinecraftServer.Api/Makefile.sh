@@ -3,6 +3,7 @@ echo "Baixando dependencias"
 echo "Testando daeawsae" >> "teste.txt"
 apt update -y
 apt install jq -y
+CONFIG_FILE="appsettings.Production.json"
 tmp=$(mktemp)
 echo "Criando appsettings... para " . $CONFIG_FILE
 jq '.ConnectionStrings.Redis = "'$REDIS_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE

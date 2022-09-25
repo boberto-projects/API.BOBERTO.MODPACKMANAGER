@@ -21,7 +21,7 @@ builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
 //alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json")
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", false, true)
             .Build();
 
 
