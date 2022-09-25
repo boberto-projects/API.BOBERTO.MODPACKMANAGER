@@ -34,8 +34,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration =
-        config.GetConnectionString("Redis");
+    options.Configuration = config.GetConnectionString("Redis");
 });
 
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
@@ -48,12 +47,10 @@ builder.Services.Configure<FormOptions>(x =>
     x.ValueLengthLimit = int.MaxValue;
     x.MultipartBodyLengthLimit = int.MaxValue; 
 });
+
 builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
 
-
 var app = builder.Build();
-
-
 app.CriarMiddlewareCasimiro();
 app.UseAuthentication();
 app.UseAuthorization();
