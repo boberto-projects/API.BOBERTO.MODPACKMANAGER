@@ -14,6 +14,7 @@ RUN echo "Some line to add to a file" >> MinecraftServer.Api/teste.txt
 RUN cd ./MinecraftServer.Api && ls
 RUN chmod +x ./MinecraftServer.Api/Makefile
 RUN ./MinecraftServer.Api/Makefile
+RUN cd ./MinecraftServer.Api && ls
 RUN cat $CONFIG_FILE
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"

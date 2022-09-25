@@ -1,6 +1,4 @@
-﻿#CONFIG_FILE="appsettings.Production.json"
-echo "testeee" > teste.txt
-echo "Baixando dependências"
+﻿echo "Baixando dependências"
 apt update -y
 apt install jq -y
 tmp=$(mktemp)
