@@ -6,11 +6,11 @@ ENV TZ="America/Sao_Paulo"
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["MinecraftServer.Api/Makefile", "MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
-RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN ls
 COPY Makefile .
 RUN chmod +x Makefile
 RUN ./Makefile
+RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
 RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build
