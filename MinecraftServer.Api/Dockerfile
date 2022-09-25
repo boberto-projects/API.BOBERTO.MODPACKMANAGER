@@ -11,11 +11,11 @@ WORKDIR /src
 COPY ["MinecraftServer.Api/appsettings.Production.json","MinecraftServer.Api/Makefile","MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN echo "Some line to add to a file" >> MinecraftServer.Api/teste.txt
+COPY . .
+WORKDIR "/src/MinecraftServer.Api"
 RUN cd ./MinecraftServer.Api && ls
 RUN ["chmod", "+x", "./MinecraftServer.Api/Makefile"]
 RUN /bin/bash -c "./MinecraftServer.Api/Makefile"
-COPY . .
-WORKDIR "/src/MinecraftServer.Api"
 RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 
