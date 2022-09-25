@@ -4,7 +4,7 @@ apt update -y
 apt install jq -y
 #CONFIG_FILE="appsettings.Production.json"
 tmp=$(mktemp)
-echo "Criando appsettings..."
+echo "Criando appsettings... para " . $CONFIG_FILE
 jq '.ConnectionStrings.Redis = "'$REDIS_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
 jq '.MongoConnections.CollectionSettings[0].ConnectionString = "'$MONGO_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
 jq '.MongoConnections.CollectionSettings[1].ConnectionString = "'$MONGO_URL'"' $CONFIG_FILE > "$tmp" && mv "$tmp" $CONFIG_FILE
