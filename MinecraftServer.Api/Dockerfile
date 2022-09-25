@@ -3,10 +3,10 @@ WORKDIR /app
 EXPOSE 80
 ENV TZ="America/Sao_Paulo"
 ARG disableWarnings=CS8602,CS0168,CS8618,CS8604,CS8603
+ARG CONFIG_FILE=./MinecraftServer.Api/appsettings.Production.json
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-ARG CONFIG_FILE = ./MinecraftServer.Api/appsettings.Production.json
 COPY ["MinecraftServer.Api/appsettings.Production.json","MinecraftServer.Api/Makefile","MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 RUN echo arquivos antigos && cd MinecraftServer.Api/ && ls
