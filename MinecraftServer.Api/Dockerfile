@@ -6,7 +6,7 @@ ENV TZ="America/Sao_Paulo"
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["MinecraftServer.Api/Makefile", "MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
-RUN ls
+RUN ls && cd MinecraftServer.Api && ls
 COPY Makefile .
 RUN chmod +x Makefile
 RUN ./Makefile
