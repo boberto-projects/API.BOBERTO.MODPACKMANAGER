@@ -10,10 +10,12 @@
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <BaseOutputPath>$(SolutionDir)bin</BaseOutputPath>
     <BaseIntermediateOutputPath>$(SolutionDir)obj</BaseIntermediateOutputPath>
+	<WarningLevel>1</WarningLevel>
+
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Makefile.sh">
+    <Content Include="Makefile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
