@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 ENV TZ="America/Sao_Paulo"
+#teste
 #ARG disableWarnings=CS8602,CS0168,CS8618,CS8604,CS8603
 ARG CONFIG_FILE=./MinecraftServer.Api/appsettings.Production.json
 
