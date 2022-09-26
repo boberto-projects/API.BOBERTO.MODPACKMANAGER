@@ -1,2 +1,2 @@
 #!/bin/bash
-dokku run api-mine-modpack bash Makefile.sh
+echo "testeeee">> "teste.txt"
