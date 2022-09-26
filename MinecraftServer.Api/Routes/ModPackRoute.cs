@@ -117,10 +117,10 @@ namespace MinecraftServer.Api.Routes
 
                 if (Directory.Exists(outputPath))
                 {
-                    Directory.Delete(outputPath);
+                    Directory.Delete(outputPath, true);
                 }
 
-                ZipFile.ExtractToDirectory(fileNameWithPath, Path.Combine(path, modpack.Directory));
+                ZipFile.ExtractToDirectory(fileNameWithPath, outputPath);
 
                 if (File.Exists(fileNameWithPath))
                 {
