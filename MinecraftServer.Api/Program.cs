@@ -28,59 +28,54 @@ var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .EnableSubstitutions("%", "%")
             .Build();
-            
 
-builder.Services.AddAuthentication("BasicAuthentication")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
-                ("BasicAuthentication", null);
-
-builder.Services.AddAuthorization();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = config.GetConnectionString("Redis");
 });
-
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
+
+
 builder.Services.AddSingleton<ApiCicloDeVida>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
-
 builder.Services.AddDirectoryBrowser();
 builder.Services.Configure<FormOptions>(x =>
 {
     x.ValueLengthLimit = int.MaxValue;
     x.MultipartBodyLengthLimit = int.MaxValue; 
 });
+builder.Services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+                ("BasicAuthentication", null);
 
-builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
-
+builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
-app.CriarMiddlewareCasimiro();
-app.UseAuthentication();
-app.UseAuthorization();
-//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
     var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     var appsettings = config.GetConnectionString("Redis");
-
-
     return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente + Environment.NewLine + appsettings;
 }).WithTags("Health Check");
 
 
-ModPackRoute.CriarRota(app);
-LauncherVersionRoute.CriarRota(app);
-ConfigRoute.CriarRota(app);
+
+app.CriarMiddlewareCasimiro();
+app.UseAuthentication();
+app.UseAuthorization();
 
 CriarPastaModPacks();
 CriarPastaLauncherVersions();
 
+ModPackRoute.CriarRota(app);
+LauncherVersionRoute.CriarRota(app);
+ConfigRoute.CriarRota(app);
 
 if (app.Environment.IsDevelopment())
 {
