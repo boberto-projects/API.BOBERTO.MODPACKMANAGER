@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "dokku": {
-      "predeploy": "",
-      "postdeploy": "dokku run api-mine-modpack bash Makefile.sh"
-    },
-    "postdeploy": ""
-  }
-}
