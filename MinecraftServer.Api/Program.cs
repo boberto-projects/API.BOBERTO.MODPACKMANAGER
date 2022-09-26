@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using ConfigurationSubstitution;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
@@ -19,15 +20,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
 
 //alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
+
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", false, true)
+            .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .EnableSubstitutions("%", "%")
             .Build();
-
+            
 
 builder.Services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
                 ("BasicAuthentication", null);
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -61,8 +67,10 @@ app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
     var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    var appsettings = config.GetConnectionString("Redis");
 
-    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente;
+
+    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente + Environment.NewLine + appsettings;
 }).WithTags("Health Check");
 
 
