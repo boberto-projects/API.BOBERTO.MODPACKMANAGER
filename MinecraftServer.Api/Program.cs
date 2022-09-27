@@ -17,13 +17,12 @@ using ConfigurationSubstitution;
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
-//builder.WebHost.UseKestrel(o =>
-//{
-//    o.Limits.MaxRequestBodySize = null;
-//    o.Limits.MaxRequestBufferSize = null;
-//});
+builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
-//alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
+
+//Alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais segredada por ambiente.
 
 var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -33,30 +32,14 @@ var config = new ConfigurationBuilder()
             .EnableSubstitutions("%", "%")
             .Build();
 
-builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = config.GetConnectionString("Redis");
-});
-
-MongoDBServiceDI.RegistrarDI(builder.Services, config);
-
-builder.Services.AddSingleton<ApiCicloDeVida>();
-builder.Services.AddSingleton<IRedisService, RedisService>();
-builder.Services.AddDirectoryBrowser();
-
-builder.Services.AddAuthentication("BasicAuthentication")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
-                ("BasicAuthentication", null);
-
-builder.Services.AddAuthorization();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+DependencyInjection.RegistrarDI(builder.Services, config);
+AutoStartup.Start(builder.Services, config);
 
 var app = builder.Build();
 
-CriarPastaModPacks();
-CriarPastaLauncherVersions();
+app.CriarMiddlewareCasimiro();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
@@ -68,23 +51,15 @@ app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 }).WithTags("Health Check");
 
 
-
-app.CriarMiddlewareCasimiro();
-app.UseAuthentication();
-app.UseAuthorization();
-
-
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
 ConfigRoute.CriarRota(app);
 
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-app.UseSwagger();
-app.UseSwaggerUI();
+if (config.GetSection("ApiConfig").Get<ApiConfig>().Swagger)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -104,38 +79,7 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
 
 app.Run();
 
-void CriarPastaModPacks()
-{
-    var dirMods = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value);
-    if (Directory.Exists(dirMods) == false)
-    {
-        Directory.CreateDirectory(dirMods);
-    }
-};
 
-void CriarPastaLauncherVersions()
-{
-    var dirLauncherVersions = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value);
-    if (Directory.Exists(dirLauncherVersions) == false)
-    {
-        Directory.CreateDirectory(dirLauncherVersions);
-    }
-};
-
-public static class MongoDBServiceDI {
-
-    public static void RegistrarDI(this IServiceCollection services, IConfigurationRoot config)
-    {
-        services.Configure<MongoDatabaseSettings>(options => config.GetSection("MongoConnections").Bind(options));
-        services.AddSingleton<ModPackMongoDBService>();
-        services.AddSingleton<LauncherVersionMongoDBService>();
-        services.AddSingleton<LauncherConfigMongoDBService>();
-       
-        var sp = services.BuildServiceProvider();
-        createConfigCollection.CreateConfigDefaulCollection(sp);
-        createVersionCollection.CreateVersionDefaulCollection(sp);
-    }
-}
 
 
 

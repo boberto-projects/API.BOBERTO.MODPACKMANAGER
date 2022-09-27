@@ -1,9 +1,10 @@
-﻿namespace MinecraftServer.Api
-{   
+﻿namespace MinecraftServer.Api.Models
+{
     public class ApiConfig
     {
+        public bool Swagger { get; set; }
         public string CaminhoModPacks { get; set; }
-        public string CaminhoLauncherVersion  { get; set; }
+        public string CaminhoLauncherVersion { get; set; }
         public string ModPackDirUrl { get; set; }
         public string VersionDirUrl { get; set; }
         public Authorization Authorization { get; set; }

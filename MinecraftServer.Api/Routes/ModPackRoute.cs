@@ -86,19 +86,17 @@ namespace MinecraftServer.Api.Routes
 
             }).WithTags("ModPack Manager");
 
-            app.MapPost(BaseUrl + "/upload/{id}", [Authorize] async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,[FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{id}/{forceGenerateCache}", [Authorize] async (ObjectId id, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig,
+                [FromServices] ModPackMongoDBService mongoDbService, [FromServices] IRedisService redisService, [FromRoute] bool forceGenerateCache) =>
             {
+
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
                 if (modpack == null)
                 {
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
-                var bodySizeFeature = request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
-                if (bodySizeFeature is not null)
-                {
-                    bodySizeFeature.MaxRequestBodySize = null; // set limit or null for unlimited
-                }
+          
 
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
                 string outputPath = Path.Combine(path, modpack.Directory);
@@ -130,8 +128,16 @@ namespace MinecraftServer.Api.Routes
                 {
                     File.Delete(fileNameWithPath);
                 }
-                //  await mongoDbService.CreateAsync(request);
-                 return Results.Ok();
+
+                var idRedis = id.ToString();
+
+                if (!redisService.Exists(idRedis) || forceGenerateCache)
+                {
+                    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                    redisService.Set(idRedis, files, 3600);
+                }
+            
+                return Results.Ok();
             }).WithTags("ModPack Manager")
             .Accepts<IFormFile>("multipart/form-data")
             .Produces(200);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Models;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
