@@ -21,10 +21,7 @@ builder.WebHost.UseKestrel(o =>
 {
     o.Limits.MaxRequestBodySize = null;
     o.Limits.MaxRequestBufferSize = null;
-}
-
-
-);
+});
 
 //alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
 
@@ -62,13 +59,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+CriarPastaModPacks();
+CriarPastaLauncherVersions();
 
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
     var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    var appsettings = config.GetConnectionString("Redis");
-    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente + Environment.NewLine + appsettings;
+    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente;
 }).WithTags("Health Check");
 
 
@@ -77,19 +75,18 @@ app.CriarMiddlewareCasimiro();
 app.UseAuthentication();
 app.UseAuthorization();
 
-CriarPastaModPacks();
-CriarPastaLauncherVersions();
 
 ModPackRoute.CriarRota(app);
 LauncherVersionRoute.CriarRota(app);
 ConfigRoute.CriarRota(app);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseStaticFiles(new StaticFileOptions
 {
