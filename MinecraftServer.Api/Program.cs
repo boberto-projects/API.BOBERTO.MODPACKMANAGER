@@ -19,8 +19,8 @@ using ConfigurationSubstitution;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(o =>
 {
-    o.Limits.MaxRequestBodySize = long.MaxValue;
-    o.Limits.MaxRequestBufferSize = long.MaxValue;
+    o.Limits.MaxRequestBodySize = null;
+    o.Limits.MaxRequestBufferSize = null;
 }
 
 
