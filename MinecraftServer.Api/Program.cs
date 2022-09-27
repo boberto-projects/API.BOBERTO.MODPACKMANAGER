@@ -17,11 +17,11 @@ using ConfigurationSubstitution;
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel(o =>
-{
-    o.Limits.MaxRequestBodySize = null;
-    o.Limits.MaxRequestBufferSize = null;
-});
+//builder.WebHost.UseKestrel(o =>
+//{
+//    o.Limits.MaxRequestBodySize = null;
+//    o.Limits.MaxRequestBufferSize = null;
+//});
 
 //alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
 
@@ -44,11 +44,11 @@ MongoDBServiceDI.RegistrarDI(builder.Services, config);
 builder.Services.AddSingleton<ApiCicloDeVida>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
 builder.Services.AddDirectoryBrowser();
-//builder.Services.Configure<FormOptions>(x =>
-//{
-//    x.ValueLengthLimit = int.MaxValue;
-//    x.MultipartBodyLengthLimit = int.MaxValue; 
-//});
+builder.Services.Configure<FormOptions>(x =>
+{
+    x.ValueLengthLimit = int.MaxValue;
+    x.MultipartBodyLengthLimit = long.MaxValue;
+});
 builder.Services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
                 ("BasicAuthentication", null);
