@@ -30,11 +30,11 @@ var config = new ConfigurationBuilder()
             .Build();
 
 builder.Services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
-
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = config.GetConnectionString("Redis");
 });
+
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
 
 builder.Services.AddSingleton<ApiCicloDeVida>();
