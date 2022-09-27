@@ -17,7 +17,7 @@ using ConfigurationSubstitution;
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
+builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = long.MaxValue);
 
 //alterando configuração de ambientes. Agora vamos subir no Dokku de forma mais gerenciada.
 
