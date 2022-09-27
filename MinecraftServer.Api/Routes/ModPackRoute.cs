@@ -29,16 +29,17 @@ namespace MinecraftServer.Api.Routes
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
-                var idRedis = id.ToString();
+                //var idRedis = id.ToString();
 
-                if (!redisService.Exists(idRedis) || forceGenerateCache)
-                {
-                    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
-                    redisService.Set(idRedis, files, 3600);
-                }
-                var response = redisService.Get<List<ModPackFileInfo>>(idRedis);
-      
-                return Results.Ok(response);
+                //if (!redisService.Exists(idRedis) || forceGenerateCache)
+                //{
+                //    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                //    redisService.Set(idRedis, files, 3600);
+                //}
+                //var response = redisService.Get<List<ModPackFileInfo>>(idRedis);
+                var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                return Results.Ok(files);
+                // return Results.Ok(response);
             }).WithTags("ModPack Manager");
 
             app.MapGet(BaseUrl + "/{id}", async (ObjectId id, [FromServices] ModPackMongoDBService mongoDbService) =>
