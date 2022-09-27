@@ -38,7 +38,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 MongoDBServiceDI.RegistrarDI(builder.Services, config);
 
 builder.Services.AddSingleton<ApiCicloDeVida>();
-builder.Services.AddScoped<IRedisService, RedisService>();
+builder.Services.AddSingleton<IRedisService, RedisService>();
 builder.Services.AddDirectoryBrowser();
 builder.Services.Configure<FormOptions>(x =>
 {
