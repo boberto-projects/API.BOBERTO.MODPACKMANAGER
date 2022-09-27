@@ -65,8 +65,10 @@ CriarPastaLauncherVersions();
 app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
+    var upTime = DateTime.Now.Subtract(apiCicloDeVida.iniciouEm).ToString("dd/MM/yyyy HH:mm:ss");
     var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente;
+    
+    return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente + Environment.NewLine + upTime;
 }).WithTags("Health Check");
 
 
