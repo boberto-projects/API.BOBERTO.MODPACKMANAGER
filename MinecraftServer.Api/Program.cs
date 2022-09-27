@@ -44,11 +44,7 @@ MongoDBServiceDI.RegistrarDI(builder.Services, config);
 builder.Services.AddSingleton<ApiCicloDeVida>();
 builder.Services.AddSingleton<IRedisService, RedisService>();
 builder.Services.AddDirectoryBrowser();
-builder.Services.Configure<FormOptions>(x =>
-{
-    x.ValueLengthLimit = int.MaxValue;
-    x.MultipartBodyLengthLimit = long.MaxValue;
-});
+
 builder.Services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
                 ("BasicAuthentication", null);
