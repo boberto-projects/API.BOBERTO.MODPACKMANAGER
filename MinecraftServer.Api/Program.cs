@@ -18,6 +18,7 @@ using ConfigurationSubstitution;
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
@@ -41,7 +42,7 @@ app.CriarMiddlewareCasimiro();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
+app.MapGet("/", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
     var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
     var upTime = DateTime.Now.Subtract(apiCicloDeVida.iniciouEm).ToString("c");

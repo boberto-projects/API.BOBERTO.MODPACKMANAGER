@@ -13,7 +13,7 @@ namespace MinecraftServer.Api
         {
             services.Configure<FormOptions>(o => {
                 o.ValueLengthLimit = int.MaxValue;
-                o.MultipartBodyLengthLimit = int.MaxValue;
+                o.MultipartBodyLengthLimit = long.MaxValue;
                 o.MemoryBufferThreshold = int.MaxValue;
             });
             services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
