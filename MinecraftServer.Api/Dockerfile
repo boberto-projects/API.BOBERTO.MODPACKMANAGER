@@ -12,11 +12,11 @@ COPY ["MinecraftServer.Api/MinecraftServer.Api.csproj", "MinecraftServer.Api/"]
 RUN dotnet restore "MinecraftServer.Api/MinecraftServer.Api.csproj"
 COPY . .
 WORKDIR "/src/MinecraftServer.Api"
-RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build #-nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
+RUN dotnet build "MinecraftServer.Api.csproj" -c Release -o /app/build -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 
 FROM build AS publish
-RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish #-nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
+RUN dotnet publish "MinecraftServer.Api.csproj" -c Release -o /app/publish -nowarn:CS8602,CS0168,CS8618,CS8604,CS8603
 
 FROM base AS final
 WORKDIR /app
