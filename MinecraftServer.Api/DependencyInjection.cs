@@ -19,8 +19,20 @@ namespace MinecraftServer.Api
             services.Configure<ApiConfig>(options => config.GetSection("ApiConfig").Bind(options));
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = config.GetConnectionString("Redis");
+                options.Configuration = ObterRedisContext();
             });
+
+            string ObterRedisContext()
+            {
+                var redisContextUrl = config.GetConnectionString("Redis");
+                Uri redisUrl;
+                bool isRedisUrl = Uri.TryCreate(redisContextUrl, UriKind.Absolute, out redisUrl);
+                if (isRedisUrl)
+                {
+                    redisContextUrl = string.Format("{0}:{1},password={2}", redisUrl.Host, redisUrl.Port, redisUrl.UserInfo.Split(':')[1]);
+                }
+                return redisContextUrl;
+            }
 
             services.AddSingleton<ApiCicloDeVida>();
             services.AddDirectoryBrowser();
