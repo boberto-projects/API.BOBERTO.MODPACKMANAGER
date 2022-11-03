@@ -58,6 +58,27 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok(modpack);
             }).WithTags("ModPack Manager");
 
+            app.MapDelete(BaseUrl + "/{id}", async (ObjectId id, [FromServices] IOptions <ApiConfig> apiConfig, [FromServices] ModPackMongoDBService mongoDbService) =>
+            {
+                var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
+
+                if (modpack == null)
+                {
+                    throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
+                }
+
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
+                string outputPath = Path.Combine(path, modpack.Directory);
+
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
+
+                await mongoDbService.RemoveAsync(id);
+
+                return Results.Ok();
+            }).WithTags("ModPack Manager");
 
             app.MapPut(BaseUrl + "/update/{id}", [Authorize] async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
