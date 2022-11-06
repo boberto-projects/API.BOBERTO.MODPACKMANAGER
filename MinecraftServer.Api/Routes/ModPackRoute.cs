@@ -58,7 +58,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok(modpack);
             }).WithTags("ModPack Manager");
 
-            app.MapDelete(BaseUrl + "/{id}", async (ObjectId id, [FromServices] IOptions <ApiConfig> apiConfig, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapDelete(BaseUrl + "/{id}", [Authorize] async (ObjectId id, [FromServices] IOptions <ApiConfig> apiConfig, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -76,8 +76,8 @@ namespace MinecraftServer.Api.Routes
                 }
 
                 await mongoDbService.RemoveAsync(id);
-
                 return Results.Ok();
+
             }).WithTags("ModPack Manager");
 
             app.MapPut(BaseUrl + "/update/{id}", [Authorize] async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>

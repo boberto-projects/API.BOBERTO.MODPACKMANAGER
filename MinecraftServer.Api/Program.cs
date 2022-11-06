@@ -38,6 +38,7 @@ AutoStartup.Start(builder.Services, config);
 
 var app = builder.Build();
 
+
 app.CriarMiddlewareCasimiro();
 app.UseAuthentication();
 app.UseAuthorization();

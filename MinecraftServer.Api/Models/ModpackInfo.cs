@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.OpenApi.Extensions;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.Models
 {
@@ -10,8 +12,9 @@ namespace MinecraftServer.Api.Models
         public decimal Size { get; set; }
         public string Sha1 { get; set; }
         public string Url { get; set; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public FolderType Type { get; set; }
+
+       // [JsonConverter(typeof(JsonStringEnumConverter))]
+        public string Type { get; set; }
         private FolderType ObterTipo(string path)
         {
             if (path.Contains("libraries"))
@@ -35,7 +38,7 @@ namespace MinecraftServer.Api.Models
         public ModPackFileInfo(string path)
         {
             FileInfo fsi = new FileInfo(path);
-            Type = ObterTipo(path);
+            Type = ObterTipo(path).GetAttributeOfType<EnumMemberAttribute>().Value ?? ""; 
             Size = fsi.Length;
             Sha1 = Utils.GetChecksum(HashingAlgoTypes.SHA1, path);
         }
