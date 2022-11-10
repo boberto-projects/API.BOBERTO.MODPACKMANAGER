@@ -38,32 +38,23 @@ namespace MinecraftServer.Api.Routes
 
             if (firstLauncher == null)
             {
-                await mongoDbService.CreateAsync(launcherModel);
-                if(launcherVersions.Count == 0)
-                {
-                    RecreateFolderPath(latestPath);
-                    MoveFiles(latestPath, files);
-                }
-                if (launcherVersions.Count() > 0)
-                {
-                    var recentLauncherVersion = new Version(mostRecentLauncher.Version);
-                    var currentVersion = new Version(versionTag);
+                await mongoDbService.CreateAsync(launcherModel);   
+            }
+            if (launcherVersions.Count == 0)
+            {
+                RecreateFolderPath(latestPath);
+                MoveFiles(latestPath, files);
+                return Results.Ok();
+            }
 
-                    if(currentVersion.CompareTo(recentLauncherVersion) == 1)
-                    {
-                            RecreateFolderPath(latestPath);
-                            MoveFiles(latestPath, files);
-                    }
-                   
-                }
-                    ///crio pasta com última versão
+            var recentLauncherVersion = new Version(mostRecentLauncher.Version);
+            var currentVersion = new Version(versionTag);
 
-                  
-                }
-
-            
-       
-
+            if (currentVersion.CompareTo(recentLauncherVersion) == 1)
+            {
+                RecreateFolderPath(latestPath);
+                MoveFiles(latestPath, files);
+            }
 
                 void MoveFiles(string folderPath, IFormFileCollection files)
                 {
@@ -77,6 +68,7 @@ namespace MinecraftServer.Api.Routes
                         }
                     }
                 }
+
                 void RecreateFolderPath(string folderPath)
                 {
                     ///se for enviado novamente, removo a pasta com essa versão e removo todos os arquivos.
@@ -85,7 +77,6 @@ namespace MinecraftServer.Api.Routes
                         Directory.Delete(folderPath, true);
                     }
                     /// se a versão não existir, crio uma pasta para ela.
-
                     if (Directory.Exists(folderPath) == false)
                     {
                         Directory.CreateDirectory(folderPath);
