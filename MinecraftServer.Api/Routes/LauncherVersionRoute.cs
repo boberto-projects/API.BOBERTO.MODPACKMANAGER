@@ -4,11 +4,7 @@ using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
-using MinecraftServer.Api.RequestModels;
 using MinecraftServer.Api.Services;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using System.Reflection;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -18,99 +14,173 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
-            app.MapPut(BaseUrl, [Authorize] async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{versionTag}/{name}", [Authorize] async (string name, string versionTag, HttpRequest request, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
-                var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
-                var ultimoLauncher = launcherVersion.FirstOrDefault();
+            var files = request.Form.Files;
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, versionTag);
+            string latestPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, "latest");
 
-                if (ultimoLauncher == null)
-                {
-                    throw new CasimiroException(ExceptionType.Validacao, "Config não encontrado.");
-                }
+            RecreateFolderPath(path);
 
-                await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);
+            ///copio todos os arquivos enviados para a pasta versão
+            MoveFiles(path, files);
 
-                return Results.Ok();
-            }).WithTags("Launcher Version");
-
-            app.MapPost(BaseUrl, [Authorize] async (LauncherVersionRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            var launcherModel = new LauncherVersionModel()
             {
-                var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
-                var ultimoLauncher = launcherVersion.FirstOrDefault();
-                if (ultimoLauncher == null)
-                {
-                    await mongoDbService.CreateAsync(request.ToMap());
-                }
-                return Results.Ok("Config criado com sucesso.");
-            }).WithTags("Launcher Version");
+                Arch = "x64",
+                Version = versionTag,
+                Name = name,
+                System = "other"
+            };
+            var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
+            var firstLauncherVersion = launcherVersions.FirstOrDefault(ver => ver.Version.Equals(versionTag));
 
-            app.MapGet(BaseUrl, async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            if (firstLauncherVersion == null)
             {
-                var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
-                var ultimoLauncher = launcherVersion.FirstOrDefault();    
-                return Results.Ok(ultimoLauncher);
-            }).WithTags("Launcher Version");
-             
-            app.MapPost(BaseUrl + "/upload/{system}", [Authorize] async (HttpRequest request, [FromRoute] SystemEnum system, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
-            {
-                var fields = new Dictionary<string, object>();
-                var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
-                var ultimoLauncher = launcherVersion.FirstOrDefault();
+                await mongoDbService.CreateAsync(launcherModel);
+               
+            }
+                RecreateFolderPath(latestPath);
+                MoveFiles(latestPath, files);
 
-                if (ultimoLauncher == null)
+
+                void MoveFiles(string folderPath, IFormFileCollection files)
                 {
-                    throw new CasimiroException(ExceptionType.Negocio, "Config não encontrado.");
-                }
-
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion);
-
-                if (Directory.Exists(path) == false)
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                var file = request.Form.Files.First();
-     
-                FileInfo fileInfo = new FileInfo(file.FileName);
-
-                string fileNameWithPath = Path.Combine(path, file.FileName);
-
-                using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
-                {
-                    file.CopyTo(stream);
-                }
-
-                var url = $"{apiConfig.Value.VersionDirUrl}/{Path.GetFileName(fileNameWithPath)}";
-                switch (system)
-                {
-                    case SystemEnum.WINDOWS:
-                        fields.Add("packages.win64", new LauncherVersionModel.Win64Entity()
+                    foreach (var file in files)
+                    {
+                        FileInfo fileInfo = new FileInfo(file.FileName);
+                        string fileNameWithPath = Path.Combine(folderPath, file.FileName);
+                        using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
                         {
-                            Url = url,
-                        });
-                    break;
+                            file.CopyTo(stream);
+                        }
+                    }
+                }
+                void RecreateFolderPath(string folderPath)
+                {
+                    ///se for enviado novamente, removo a pasta com essa versão e removo todos os arquivos.
+                    if (Directory.Exists(folderPath))
+                    {
+                        Directory.Delete(folderPath, true);
+                    }
+                    /// se a versão não existir, crio uma pasta para ela.
 
-                    case SystemEnum.MAC:
-                        fields.Add("packages.mac64", new LauncherVersionModel.Mac64Entity()
-                        {
-                            Url = url,
-                        });
-                    break;
-
-                    case SystemEnum.LINUX:
-                        fields.Add("packages.linux64", new LauncherVersionModel.Linux64Entity()
-                        {
-                            Url = url,
-                        });
-                    break;
+                    if (Directory.Exists(folderPath) == false)
+                    {
+                        Directory.CreateDirectory(folderPath);
+                    }
                 }
 
-                await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), fields);
-
-                return Results.Ok();
+                return Results.Ok();   
             }).WithTags("Launcher Version")
-      .Accepts<IFormFile>("multipart/form-data")
-      .Produces(200);
+            .Accepts<IFormFile>("multipart/form-data")
+            .Produces(200);
+
+            //app.MapGet(BaseUrl + "/latest", async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            //{
+            //    var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+            //    var lastVersion = launcherVersion.OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+
+               
+            //    return Results.Ok();
+            //}).WithTags("Launcher Version");
+
+
+
+            //      app.MapPut(BaseUrl, [Authorize] async ([FromBody] Dictionary<string, object> request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            //      {
+            //          var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+            //          var ultimoLauncher = launcherVersion.FirstOrDefault();
+
+            //          if (ultimoLauncher == null)
+            //          {
+            //              throw new CasimiroException(ExceptionType.Validacao, "Config não encontrado.");
+            //          }
+
+            //          await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), request);
+
+            //          return Results.Ok();
+            //      }).WithTags("Launcher Version");
+
+            //      app.MapPost(BaseUrl, [Authorize] async (LauncherVersionRequest request, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            //      {
+            //          var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+            //          var ultimoLauncher = launcherVersion.FirstOrDefault();
+            //          if (ultimoLauncher == null)
+            //          {
+            //              await mongoDbService.CreateAsync(request.ToMap());
+            //          }
+            //          return Results.Ok("Config criado com sucesso.");
+            //      }).WithTags("Launcher Version");
+
+            //      app.MapGet(BaseUrl, async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            //      {
+            //          var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+            //          var ultimoLauncher = launcherVersion.FirstOrDefault();    
+            //          return Results.Ok(ultimoLauncher);
+            //      }).WithTags("Launcher Version");
+
+            //      app.MapPost(BaseUrl + "/upload/{system}", [Authorize] async (HttpRequest request, [FromRoute] SystemEnum system, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            //      {
+            //          var fields = new Dictionary<string, object>();
+            //          var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
+            //          var ultimoLauncher = launcherVersion.FirstOrDefault();
+
+            //          if (ultimoLauncher == null)
+            //          {
+            //              throw new CasimiroException(ExceptionType.Negocio, "Config não encontrado.");
+            //          }
+
+            //          string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion);
+
+            //          if (Directory.Exists(path) == false)
+            //          {
+            //              Directory.CreateDirectory(path);
+            //          }
+
+            //          var file = request.Form.Files.First();
+
+            //          FileInfo fileInfo = new FileInfo(file.FileName);
+
+            //          string fileNameWithPath = Path.Combine(path, file.FileName);
+
+            //          using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
+            //          {
+            //              file.CopyTo(stream);
+            //          }
+
+            //          var url = $"{apiConfig.Value.VersionDirUrl}/{Path.GetFileName(fileNameWithPath)}";
+            //          switch (system)
+            //          {
+            //              case SystemEnum.WINDOWS:
+            //                  fields.Add("packages.win64", new LauncherVersionModel.Win64Entity()
+            //                  {
+            //                      Url = url,
+            //                  });
+            //              break;
+
+            //              case SystemEnum.MAC:
+            //                  fields.Add("packages.mac64", new LauncherVersionModel.Mac64Entity()
+            //                  {
+            //                      Url = url,
+            //                  });
+            //              break;
+
+            //              case SystemEnum.LINUX:
+            //                  fields.Add("packages.linux64", new LauncherVersionModel.Linux64Entity()
+            //                  {
+            //                      Url = url,
+            //                  });
+            //              break;
+            //          }
+
+            //          await mongoDbService.UpdateKeyPairAsync(ObjectId.Parse(ultimoLauncher.Id), fields);
+
+            //          return Results.Ok();
+            //      }).WithTags("Launcher Version")
+            //.Accepts<IFormFile>("multipart/form-data")
+            //.Produces(200);
+            //  }
         }
     }
 }

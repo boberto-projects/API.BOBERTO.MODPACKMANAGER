@@ -76,7 +76,21 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
     FileProvider = new PhysicalFileProvider(
            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
     RequestPath = "/files",
+});
+//launcher version
+app.UseStaticFiles(new StaticFileOptions
+{
+    ServeUnknownFileTypes = true,
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = "/launcher",
+});
 
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = "/launcher",
 });
 
 app.Run();

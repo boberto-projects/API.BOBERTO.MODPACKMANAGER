@@ -20,26 +20,11 @@ namespace MinecraftServer.Api.Seeds
                     return;
                 }
 
-                var defaultConfig = new LauncherVersionModel()
-                {
-                    Packages = new LauncherVersionModel.PackagesEntity()
-                    {
-                        Win64 = new LauncherVersionModel.Win64Entity()
-                        {
-                            Url = ""
-                        },
-                        Linux64 = new LauncherVersionModel.Linux64Entity()
-                        {
-                            Url = ""
-                        },
-                        Mac64 = new LauncherVersionModel.Mac64Entity()
-                        {
-                            Url = ""
-                        }
-                    },
-                    Version = "1.0.0"
-                };
-                mongoDBService.CreateAsync(defaultConfig).Wait();
+                //var defaultConfig = new LauncherVersionModel()
+                //{
+                    
+                //};
+                //mongoDBService.CreateAsync(defaultConfig).Wait();
             }
             catch (Exception e)
             {
