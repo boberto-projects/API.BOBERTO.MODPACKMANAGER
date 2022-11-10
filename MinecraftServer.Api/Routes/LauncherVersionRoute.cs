@@ -33,15 +33,36 @@ namespace MinecraftServer.Api.Routes
                 System = "other"
             };
             var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
-            var firstLauncherVersion = launcherVersions.FirstOrDefault(ver => ver.Version.Equals(versionTag));
+            var firstLauncher = launcherVersions.FirstOrDefault(ver => ver.Version.Equals(versionTag));
+            var mostRecentLauncher = launcherVersions.OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
 
-            if (firstLauncherVersion == null)
+            if (firstLauncher == null)
             {
                 await mongoDbService.CreateAsync(launcherModel);
-               
-            }
-                RecreateFolderPath(latestPath);
-                MoveFiles(latestPath, files);
+                if(launcherVersions.Count == 0)
+                {
+                    RecreateFolderPath(latestPath);
+                    MoveFiles(latestPath, files);
+                }
+                if (launcherVersions.Count() > 0)
+                {
+                    var recentLauncherVersion = new Version(mostRecentLauncher.Version);
+                    var currentVersion = new Version(versionTag);
+
+                    if(currentVersion.CompareTo(recentLauncherVersion) == 1)
+                    {
+                            RecreateFolderPath(latestPath);
+                            MoveFiles(latestPath, files);
+                    }
+                   
+                }
+                    ///crio pasta com última versão
+
+                  
+                }
+
+            
+       
 
 
                 void MoveFiles(string folderPath, IFormFileCollection files)
