@@ -8,8 +8,8 @@ namespace MinecraftServer.Api.RequestModels
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("files")]
+        public List<string> Files { get; set; }
 
         [JsonPropertyName("system")]
         public string System { get; set; }
@@ -20,13 +20,11 @@ namespace MinecraftServer.Api.RequestModels
         {
             return new LauncherVersionModel()
             {
-                Name = this.Version,
+                Files = this.Files,
                 Arch = this.Arch,
                 System = this.System,
                 Version = this.Version
             };
         }
-        
-
     }
 }

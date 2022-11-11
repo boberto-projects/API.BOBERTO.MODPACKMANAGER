@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.Services;
-using System.Collections;
-using System.IO;
+using MongoDB.Bson;
 
 namespace MinecraftServer.Api.Routes
 {
@@ -17,75 +14,93 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
-            app.MapPost(BaseUrl + "/upload/{versionTag}/{name}", [Authorize] async (Stream body, [FromRoute] string name, [FromRoute] string versionTag, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{versionTag}/{name}", [Authorize] async (Stream body, [FromRoute] string versionTag, [FromRoute] string name, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
 
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, versionTag);
                 string latestPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, "latest");
-                Stream stream = new MemoryStream();
-                body.CopyTo(stream);
+                using Stream stream = new MemoryStream();
+                await body.CopyToAsync(stream);
 
-                FormFile file = new FormFile(stream, 0, stream.Length, name, name);
-
-
+                var file = new FormFile(stream, 0, stream.Length, name, name);
 
 
-                //recrio a pasta
-                CreateFolderPath(path);
-                ///copio todos os arquivos enviados para a pasta versão
-                MoveFileTest(path, file);
-                var launcherModel = new LauncherVersionModel()
-                {
-                    Arch = "x64",
-                    Version = versionTag,
-                    Name = name,
-                    System = "other"
-                };
                 var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
-                var firstLauncher = launcherVersions.FirstOrDefault(ver => ver.Version.Equals(versionTag));
-                var mostRecentLauncher = launcherVersions.OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+                var recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+                var recentLauncherVersion = new Version(recentLauncher?.Version ?? versionTag);
+                var currentVersion = new Version(versionTag);
+                var versionCompare = currentVersion.CompareTo(recentLauncherVersion);
+
+                if (versionCompare == 1)
+                {
+                    CreateFolderPath(path);
+                    ///copio todos os arquivos enviados para a pasta versão
+                    MoveFileTest(path, file);
+
+                    CreateFolderPath(latestPath);
+                    MoveFileTest(latestPath, file);
+                }
+                if (versionCompare == 0)
+                {
+                    //recrio a pasta
+                    RecreateFolderPath(path);
+                    ///copio todos os arquivos enviados para a pasta versão
+                    MoveFileTest(path, file);
+
+                    RecreateFolderPath(latestPath);
+                    MoveFileTest(latestPath, file);
+                }
+                var firstLauncher = await mongoDbService.GetAsync<LauncherVersionModel>("version", versionTag);
 
                 if (firstLauncher == null)
                 {
+                    var launcherModel = new LauncherVersionModel()
+                    {
+                        Arch = "x64",
+                        Version = versionTag,
+                        Files = new List<string>() { name },
+                        System = "other"
+                    };
                     await mongoDbService.CreateAsync(launcherModel);
-                }
 
-                if (launcherVersions.Count == 0)
+                    //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
+                    //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+                }
+                else
                 {
-                    RecreateFolderPath(latestPath);
-                    MoveFileTest(latestPath, file);
-                    return Results.Ok();
+                    firstLauncher.Files.Add(name);
+                    await mongoDbService.UpdateAsync(ObjectId.Parse(firstLauncher.Id), firstLauncher);
                 }
 
-                var recentLauncherVersion = new Version(mostRecentLauncher.Version);
-                var currentVersion = new Version(versionTag);
+                //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
+                //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
 
-                if (currentVersion.CompareTo(recentLauncherVersion) == 1)
-                {
-                    RecreateFolderPath(latestPath);
-                    MoveFileTest(latestPath, file);
-                }
+                //if (launcherVersions.Count == 0)
+                //{
+                //    CreateFolderPath(latestPath);
+                //    MoveFileTest(latestPath, file);
+                //    return Results.Ok();
+                //}
+
+
+
+                return Results.Ok();
 
                 void MoveFileTest(string folderPath, IFormFile file)
                 {
-                   
-                    FileInfo fileInfo = new FileInfo(file.FileName);
                     string fileNameWithPath = Path.Combine(folderPath, file.FileName);
-                    using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
+                    using (var stream = new FileStream(fileNameWithPath, FileMode.OpenOrCreate))
                     {
                         file.CopyTo(stream);
                     }
-                    
                 }
-
-               
                 void CreateFolderPath(string folderPath)
                 {
                     if (Directory.Exists(folderPath) == false)
                     {
                         Directory.CreateDirectory(folderPath);
                     }
-                }   
+                }
                 void RecreateFolderPath(string folderPath)
                 {
                     ///se for enviado novamente, removo a pasta com essa versão e removo todos os arquivos.
@@ -100,11 +115,10 @@ namespace MinecraftServer.Api.Routes
                     }
                 }
 
-                return Results.Ok();
             }).WithTags("Launcher Version")
             .Produces(200);
 
-           
+
 
             //app.MapGet(BaseUrl + "/latest", async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
             //{
@@ -213,6 +227,6 @@ namespace MinecraftServer.Api.Routes
             //  }
         }
 
-  
+
     }
 }

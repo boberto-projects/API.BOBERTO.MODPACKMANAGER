@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using System.Linq;
 using System.Text.Json;
 
 namespace MinecraftServer.Api.Services
@@ -18,7 +16,7 @@ namespace MinecraftServer.Api.Services
         protected BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
         {
             var config = mongoDBSettings.Value.ObterPorColecao(CollectionName);
-            
+
             _mongoClient = new MongoClient(config.ConnectionString);
 
             _mongoDatabase = _mongoClient.GetDatabase(config.DatabaseName);
@@ -44,7 +42,18 @@ namespace MinecraftServer.Api.Services
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
-            if(resultado != null)
+            if (resultado != null)
+            {
+                return BsonSerializer.Deserialize<T>(resultado);
+            }
+            return default;
+        }
+
+        public virtual async Task<T?> GetAsync<T>(string field, string value)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq(field, value);
+            var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
+            if (resultado != null)
             {
                 return BsonSerializer.Deserialize<T>(resultado);
             }
@@ -93,7 +102,8 @@ namespace MinecraftServer.Api.Services
             return true;
         }
 
-        public virtual async Task<bool> RemoveAsync(ObjectId id){
+        public virtual async Task<bool> RemoveAsync(ObjectId id)
+        {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             await _mongoDBConnection.DeleteOneAsync(filter);
             return true;
