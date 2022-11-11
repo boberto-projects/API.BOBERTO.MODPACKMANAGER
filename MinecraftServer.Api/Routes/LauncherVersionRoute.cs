@@ -14,22 +14,49 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
+            //HttpRequest request, 
             app.MapPost(BaseUrl + "/upload/{versionTag}/{name}", [Authorize] async (Stream body, [FromRoute] string versionTag, [FromRoute] string name, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
 
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, versionTag);
                 string latestPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, "latest");
-                using Stream stream = new MemoryStream();
-                await body.CopyToAsync(stream);
-
-                var file = new FormFile(stream, 0, stream.Length, name, name);
-
+                //using (Stream stream = new MemoryStream())
+                //{
+                //    body.CopyTo(stream);
+                //}
+                //  var file = request.Form.Files.First();
+                Stream stream = new MemoryStream();
+                body.CopyTo(stream);
+                FormFile file = new FormFile(stream, 0, stream.Length, name, name);
 
                 var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
                 var recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
                 var recentLauncherVersion = new Version(recentLauncher?.Version ?? versionTag);
                 var currentVersion = new Version(versionTag);
                 var versionCompare = currentVersion.CompareTo(recentLauncherVersion);
+
+                var firstLauncher = await mongoDbService.GetAsync<LauncherVersionModel>("version", versionTag);
+
+                if (firstLauncher == null)
+                {
+                    var launcherModel = new LauncherVersionModel()
+                    {
+                        Arch = "x64",
+                        Name = name,
+                        Version = versionTag,
+                        Files = new List<string>() { file.FileName },
+                        System = "other"
+                    };
+                    await mongoDbService.CreateAsync(launcherModel);
+
+                    //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
+                    //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+                }
+                else
+                {
+                    firstLauncher.Files.Add(file.Name);
+                    await mongoDbService.UpdateAsync(ObjectId.Parse(firstLauncher.Id), firstLauncher);
+                }
 
                 if (versionCompare == 1)
                 {
@@ -50,27 +77,6 @@ namespace MinecraftServer.Api.Routes
                     RecreateFolderPath(latestPath);
                     MoveFileTest(latestPath, file);
                 }
-                var firstLauncher = await mongoDbService.GetAsync<LauncherVersionModel>("version", versionTag);
-
-                if (firstLauncher == null)
-                {
-                    var launcherModel = new LauncherVersionModel()
-                    {
-                        Arch = "x64",
-                        Version = versionTag,
-                        Files = new List<string>() { name },
-                        System = "other"
-                    };
-                    await mongoDbService.CreateAsync(launcherModel);
-
-                    //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
-                    //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
-                }
-                else
-                {
-                    firstLauncher.Files.Add(name);
-                    await mongoDbService.UpdateAsync(ObjectId.Parse(firstLauncher.Id), firstLauncher);
-                }
 
                 //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
                 //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
@@ -89,7 +95,7 @@ namespace MinecraftServer.Api.Routes
                 void MoveFileTest(string folderPath, IFormFile file)
                 {
                     string fileNameWithPath = Path.Combine(folderPath, file.FileName);
-                    using (var stream = new FileStream(fileNameWithPath, FileMode.OpenOrCreate))
+                    using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
                     {
                         file.CopyTo(stream);
                     }

@@ -6,6 +6,10 @@ namespace MinecraftServer.Api.MongoEntities
 {
     public class LauncherVersionModel : BaseModel
     {
+        [BsonElement("name")]
+        [BsonRepresentation(BsonType.String)]
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
         [BsonElement("version")]
         [BsonRepresentation(BsonType.String)]
