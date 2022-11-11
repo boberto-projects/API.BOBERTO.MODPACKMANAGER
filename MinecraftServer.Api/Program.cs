@@ -17,7 +17,10 @@ using ConfigurationSubstitution;
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
+builder.WebHost.UseKestrel(o => {
+    o.Limits.MaxRequestBodySize = null;
+    o.AllowSynchronousIO = true;
+    });
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
