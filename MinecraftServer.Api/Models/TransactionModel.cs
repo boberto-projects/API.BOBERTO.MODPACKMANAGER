@@ -2,6 +2,12 @@
 {
     public class TransactionModel
     {
+        /// <summary>
+        /// 12/11/2022 20:43
+        /// Todo: Necessário adicionar Transaction em todos os serviços que alterem dados em MongoService
+        /// Atualmente apenas o UpdateSet foi atualizado.
+        /// Todo: Verificar o uso de memória e o tempo do request.
+        /// </summary>
         private bool isTransaction { get; set; }
         private List<Task> Changes { get; set; }
 
