@@ -88,9 +88,11 @@ namespace MinecraftServer.Api.Routes
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
                 var directory = request.TryGetValue("directory", out object modpackDirObject);
+                var isNewModPackDir = modpackDirObject.ToString().Contains(modpack.Directory) == false;
+
                 if (directory)
                 {
-                    var isNewModPackDir = modpackDirObject.ToString().Contains(modpack.Directory) == false;
+
 
                 }
 

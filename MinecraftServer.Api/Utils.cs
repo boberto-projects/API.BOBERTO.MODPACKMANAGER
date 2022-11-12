@@ -1,4 +1,5 @@
-﻿using MinecraftServer.Api.Models;
+﻿using MinecraftServer.Api.Exceptions;
+using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 
 namespace MinecraftServer.Api
@@ -56,7 +57,7 @@ namespace MinecraftServer.Api
 
             // Check if the source directory exists
             if (!dir.Exists)
-                throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
+                throw new CasimiroException(ExceptionType.Validacao, $"Diretório não encontrado: {dir.FullName}");
 
             // Cache directories before we start copying
             DirectoryInfo[] dirs = dir.GetDirectories();

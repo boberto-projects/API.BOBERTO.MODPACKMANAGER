@@ -11,6 +11,8 @@ namespace MinecraftServer.Api.Services
         private readonly IMongoCollection<BsonDocument> _mongoDBConnection;
         private readonly MongoClient _mongoClient;
         private readonly IMongoDatabase _mongoDatabase;
+        private bool isTransaction { get; set; }
+        private List<Task> Changes { get; set; }
         public abstract string CollectionName { get; }
 
         protected BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
@@ -26,8 +28,8 @@ namespace MinecraftServer.Api.Services
 
         public virtual async Task<List<T>> GetAsync<T>()
         {
-            var filter = Builders<BsonDocument>.Filter.Empty;
-            var resultado = await _mongoDBConnection.FindAsync(filter);
+            var filtro = Builders<BsonDocument>.Filter.Empty;
+            var resultado = await _mongoDBConnection.FindAsync(filtro);
             var list = new List<T>();
             foreach (var item in resultado.ToList())
             {
@@ -40,8 +42,8 @@ namespace MinecraftServer.Api.Services
 
         public virtual async Task<T?> GetAsync<T>(ObjectId id)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-            var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
+            var filtro = Builders<BsonDocument>.Filter.Eq("_id", id);
+            var resultado = await _mongoDBConnection.Find(filtro).FirstOrDefaultAsync();
             if (resultado != null)
             {
                 return BsonSerializer.Deserialize<T>(resultado);
@@ -51,8 +53,8 @@ namespace MinecraftServer.Api.Services
 
         public virtual async Task<T?> GetAsync<T>(string field, string value)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq(field, value);
-            var resultado = await _mongoDBConnection.Find(filter).FirstOrDefaultAsync();
+            var filtro = Builders<BsonDocument>.Filter.Eq(field, value);
+            var resultado = await _mongoDBConnection.Find(filtro).FirstOrDefaultAsync();
             if (resultado != null)
             {
                 return BsonSerializer.Deserialize<T>(resultado);
@@ -65,14 +67,14 @@ namespace MinecraftServer.Api.Services
 
         public virtual async Task UpdateAsync<T>(ObjectId id, T value)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-            await _mongoDBConnection.ReplaceOneAsync(filter, value.ToBsonDocument());
+            var filtro = Builders<BsonDocument>.Filter.Eq("_id", id);
+            await _mongoDBConnection.ReplaceOneAsync(filtro, value.ToBsonDocument());
         }
 
         public virtual async Task<bool> UpdateKeyPairAsync(ObjectId id, Dictionary<string, object> dictionary)
         {
             UpdateDefinition<BsonDocument> update = null!;
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            var filtro = Builders<BsonDocument>.Filter.Eq("_id", id);
 
             var options = new JsonSerializerOptions
             {
@@ -89,16 +91,21 @@ namespace MinecraftServer.Api.Services
 
             update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", changesDocument));
 
-            await _mongoDBConnection.UpdateOneAsync(filter, update, updateOptions);
+            await _mongoDBConnection.UpdateOneAsync(filtro, update, updateOptions);
 
             return true;
         }
 
         public virtual async Task<bool> RemoveAsync(ObjectId id)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-            await _mongoDBConnection.DeleteOneAsync(filter);
+            var filtro = Builders<BsonDocument>.Filter.Eq("_id", id);
+            await _mongoDBConnection.DeleteOneAsync(filtro);
             return true;
+        }
+
+        public virtual async Task<bool> InitTransaction()
+        {
+            this.isTransaction = true;
         }
     }
 }
