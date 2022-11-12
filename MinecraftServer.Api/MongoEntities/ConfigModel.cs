@@ -21,11 +21,5 @@ namespace MinecraftServer.Api.MongoEntities
         [BsonRepresentation(BsonType.String)]
         public string ClientId { get; set; }
 
-        [BsonElement("java")]
-        [BsonRepresentation(BsonType.Boolean)]
-        public bool Java { get; set; }
-
-        [BsonElement("ignored")]
-        public List<string> Ignored { get; set; }
     }
 }

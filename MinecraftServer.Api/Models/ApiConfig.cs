@@ -2,11 +2,12 @@
 {
     public class ApiConfig
     {
+        public string Hostname { get; set; }
         public bool Swagger { get; set; }
-        public string CaminhoModPacks { get; set; }
-        public string CaminhoLauncherVersion { get; set; }
-        public string ModPackDirUrl { get; set; }
-        public string VersionDirUrl { get; set; }
+        public string ModPackDir { get; set; }
+        public string ModPackUrl { get; set; }
+        public string LauncherVersionDir { get; set; }
+        public string LauncherVersionUrl { get; set; }
         public Authorization Authorization { get; set; }
     }
 

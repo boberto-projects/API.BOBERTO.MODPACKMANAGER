@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MinecraftServer.Api.Exceptions;
@@ -18,7 +17,7 @@ namespace MinecraftServer.Api.Routes
 
         public static void CriarRota(this WebApplication app)
         {
-            app.MapGet(BaseUrl + "/files/{id}/{forceGenerateCache}", async ([FromRoute]  ObjectId id, [FromServices] IOptions<ApiConfig> apiConfig, [FromRoute] bool forceGenerateCache, 
+            app.MapGet(BaseUrl + "/files/{id}/{forceGenerateCache}", async ([FromRoute] ObjectId id, [FromServices] IOptions<ApiConfig> apiConfig, [FromRoute] bool forceGenerateCache,
                 [FromServices] ModPackMongoDBService mongoDbService,
                 [FromServices] IRedisService redisService) =>
             {
@@ -33,10 +32,10 @@ namespace MinecraftServer.Api.Routes
 
                 if (!redisService.Exists(idRedis) || forceGenerateCache)
                 {
-                    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                    var files = Utils.ListarArquivosRecursivos(apiConfig.Value, modpack);
                     redisService.Set(idRedis, files, 3600);
                 }
-                var response = redisService.Get<List<ModPackFileInfo>>(idRedis); 
+                var response = redisService.Get<List<ModPackFileInfo>>(idRedis);
                 return Results.Ok(response);
             }).WithTags("ModPack Manager");
 
@@ -58,7 +57,7 @@ namespace MinecraftServer.Api.Routes
                 return Results.Ok(modpack);
             }).WithTags("ModPack Manager");
 
-            app.MapDelete(BaseUrl + "/{id}", [Authorize] async (ObjectId id, [FromServices] IOptions <ApiConfig> apiConfig, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapDelete(BaseUrl + "/{id}", [Authorize] async (ObjectId id, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -67,7 +66,7 @@ namespace MinecraftServer.Api.Routes
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
 
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.ModPackDir);
                 string outputPath = Path.Combine(path, modpack.Directory);
 
                 if (Directory.Exists(path))
@@ -88,6 +87,14 @@ namespace MinecraftServer.Api.Routes
                 {
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
+                var directory = request.TryGetValue("directory", out object modpackDirObject);
+                if (directory)
+                {
+                    var isNewModPackDir = modpackDirObject.ToString().Contains(modpack.Directory) == false;
+
+                }
+
+
 
                 await mongoDbService.UpdateKeyPairAsync(id, request);
 
@@ -96,12 +103,21 @@ namespace MinecraftServer.Api.Routes
 
             app.MapPost(BaseUrl + "/add", [Authorize] async (ModPackRequest request, [FromServices] ModPackMongoDBService mongoDbService) =>
             {
-                var modpack = await mongoDbService.GetAsync<ModPackModel>(ObjectId.Parse(request.Id));
-                if (modpack == null)
+                if (string.IsNullOrEmpty(request.Id) == false)
                 {
-                    request.DatetimeCreatAt = DateTime.Now;
-                    await mongoDbService.CreateAsync(request.ToMap());
+                    var objectId = ObjectId.Parse(request.Id);
+
+                    var modpack = await mongoDbService.GetAsync<ModPackModel>(objectId);
+
+                    if (modpack != null)
+                    {
+                        throw new CasimiroException(ExceptionType.Validacao, "MODPACK já existe.");
+                    }
                 }
+
+                request.DatetimeCreatAt = DateTime.Now;
+                await mongoDbService.CreateAsync(request.ToMap());
+
 
                 return Results.Ok();
 
@@ -117,17 +133,20 @@ namespace MinecraftServer.Api.Routes
                 {
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
-          
 
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoModPacks);
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.ModPackDir);
                 string outputPath = Path.Combine(path, modpack.Directory);
-                
+
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
 
                 var file = request.Form.Files.First();
+                if (file.FileName.EndsWith(".zip") == false)
+                {
+                    throw new CasimiroException(ExceptionType.Validacao, "Só é possível fazer upload de arquivos .zip");
+                }
 
                 FileInfo fileInfo = new FileInfo(file.FileName);
 
@@ -154,14 +173,14 @@ namespace MinecraftServer.Api.Routes
 
                 if (!redisService.Exists(idRedis) || forceGenerateCache)
                 {
-                    var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                    var files = Utils.ListarArquivosRecursivos(apiConfig.Value, modpack);
                     redisService.Set(idRedis, files, 3600);
                 }
-            
+
                 return Results.Ok();
             }).WithTags("ModPack Manager")
             .Accepts<IFormFile>("multipart/form-data")
             .Produces(200);
-        }   
+        }
     }
 }

@@ -74,21 +74,13 @@ namespace MinecraftServer.Api.Services
             UpdateDefinition<BsonDocument> update = null!;
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
 
-            var changesJson = JsonSerializer.Serialize(dictionary);
-            var changesDocument = BsonDocument.Parse(changesJson);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
 
-            //foreach (var item in changesDocument)
-            //{
-            //    if (update == null)
-            //    {
-            //        var builder = Builders<BsonDocument>.Update;
-            //        update = builder.Set(item.Name, item.Value);
-            //    }
-            //    else
-            //    {
-            //        update = update.Set(item.Name, item.Value);
-            //    }
-            //}
+            var changesJson = JsonSerializer.Serialize(dictionary, options);
+            var changesDocument = BsonDocument.Parse(changesJson);
 
             var updateOptions = new UpdateOptions
             {

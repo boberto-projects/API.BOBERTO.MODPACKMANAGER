@@ -24,9 +24,7 @@ namespace MinecraftServer.Api.Seeds
                     Maintenance = false,
                     MaintenanceMessage = "Hora da manutenção, amiguinhos!",
                     Offline = false,
-                    ClientId = "",
-                    Java = false,
-                    Ignored = new List<string> { "options.txt", "log" }
+                    ClientId = ""
                 };
                 mongoDBService.CreateAsync(defaultConfig).Wait();
             }

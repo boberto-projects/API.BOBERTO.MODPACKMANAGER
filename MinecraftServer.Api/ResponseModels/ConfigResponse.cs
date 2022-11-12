@@ -27,12 +27,10 @@ namespace MinecraftServer.Api.ResponseModels
         {
             return new ConfigModel
             {
-              ClientId = this.ClientId,
-              Maintenance = this.Maintenance,
-              MaintenanceMessage = this.MaintenanceMessage,
-              Offline = this.Offline,
-              Java = this.Java,
-              Ignored = this.Ignored,
+                ClientId = this.ClientId,
+                Maintenance = this.Maintenance,
+                MaintenanceMessage = this.MaintenanceMessage,
+                Offline = this.Offline
             };
         }
     }

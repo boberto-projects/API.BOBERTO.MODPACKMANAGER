@@ -64,5 +64,12 @@ namespace MinecraftServer.Api.MongoEntities
         [BsonElement("serverPort")]
         [BsonRepresentation(BsonType.String)]
         public int ServerPort { get; set; }
+
+        [BsonElement("java")]
+        [BsonRepresentation(BsonType.Boolean)]
+        public bool Java { get; set; }
+
+        [BsonElement("ignored")]
+        public List<string> Ignored { get; set; }
     }
 }

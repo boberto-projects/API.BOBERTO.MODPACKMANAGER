@@ -1,6 +1,6 @@
 ﻿
 using MinecraftServer.Api.MongoEntities;
-using Newtonsoft.Json;
+using MongoDB.Bson;
 using System.Text.Json.Serialization;
 
 namespace MinecraftServer.Api.RequestModels
@@ -52,11 +52,17 @@ namespace MinecraftServer.Api.RequestModels
         [JsonPropertyName("serverPort")]
         public int ServerPort { get; set; }
 
+        [JsonPropertyName("java")]
+        public bool Java { get; set; }
+
+        [JsonPropertyName("ignored")]
+        public List<string> Ignored { get; set; }
+
         public ModPackModel ToMap()
         {
             return new ModPackModel
             {
-                Id = this.Id,
+                Id = string.IsNullOrEmpty(this.Id) ? ObjectId.GenerateNewId().ToString() : this.Id,
                 Name = this.Name,
                 Author = this.Author,
                 DateTimeCreatAt = this.DatetimeCreatAt,
@@ -71,6 +77,8 @@ namespace MinecraftServer.Api.RequestModels
                 Img = this.Img,
                 ServerIp = this.ServerIp,
                 ServerPort = this.ServerPort,
+                Ignored = this.Ignored,
+                Java = this.Java
             };
         }
 

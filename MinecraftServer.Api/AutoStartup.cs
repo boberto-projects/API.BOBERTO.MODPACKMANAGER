@@ -2,7 +2,6 @@
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.Services;
-using System.Diagnostics;
 
 namespace MinecraftServer.Api
 {
@@ -26,7 +25,7 @@ namespace MinecraftServer.Api
 
             foreach (var modpack in modPacks)
             {
-                var files = Utils.ListarArquivosRecursivos(apiConfig, modpack);
+                var files = Utils.ListarArquivosRecursivos(apiConfig.Value, modpack);
                 if (redisService.Exists(modpack.Id))
                 {
                     logger.LogInformation($"Already exists cache redis for {modpack.Id}");
@@ -37,9 +36,9 @@ namespace MinecraftServer.Api
             }
         }
 
-        static void  CriarPastaModPacks(IConfigurationRoot config)
+        static void CriarPastaModPacks(IConfigurationRoot config)
         {
-            var dirMods = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").Get<ApiConfig>().CaminhoModPacks);
+            var dirMods = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").Get<ApiConfig>().ModPackDir);
             if (Directory.Exists(dirMods) == false)
             {
                 Directory.CreateDirectory(dirMods);
@@ -48,7 +47,7 @@ namespace MinecraftServer.Api
 
         static void CriarPastaLauncherVersions(IConfigurationRoot config)
         {
-            var dirLauncherVersions = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").Get<ApiConfig>().CaminhoLauncherVersion);
+            var dirLauncherVersions = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").Get<ApiConfig>().LauncherVersionDir);
             if (Directory.Exists(dirLauncherVersions) == false)
             {
                 Directory.CreateDirectory(dirLauncherVersions);

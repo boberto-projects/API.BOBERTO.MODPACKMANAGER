@@ -1,26 +1,21 @@
 
-using MinecraftServer.Api;
-using MinecraftServer.Api.Services;
-using MinecraftServer.Api.Routes;
-using MinecraftServer.Api.Middlewares;
-using MinecraftServer.Api.Seeds;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Http.Features;
-using MinecraftServer.Api.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using ConfigurationSubstitution;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
+using MinecraftServer.Api;
+using MinecraftServer.Api.Middlewares;
+using MinecraftServer.Api.Models;
+using MinecraftServer.Api.Routes;
 
 /// <summary>
 /// Refatoração API BOBERTO PHP para C# estilo minimal api 18/07/2022 - 21:43
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel(o => {
+builder.WebHost.UseKestrel(o =>
+{
     o.Limits.MaxRequestBodySize = null;
     o.AllowSynchronousIO = true;
-    });
+});
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -48,10 +43,10 @@ app.UseAuthorization();
 
 app.MapGet("/", ([FromServices] ApiCicloDeVida apiCicloDeVida) =>
 {
-    var ultimoDeploy =  "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
+    var ultimoDeploy = "Último deploy " + apiCicloDeVida.iniciouEm.ToString("dd/MM/yyyy HH:mm:ss");
     var upTime = DateTime.Now.Subtract(apiCicloDeVida.iniciouEm).ToString("c");
     var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    
+
     return ultimoDeploy + Environment.NewLine + "Ambiente:" + ambiente + Environment.NewLine + upTime;
 }).WithTags("Health Check");
 
@@ -66,6 +61,7 @@ if (config.GetSection("ApiConfig").Get<ApiConfig>().Swagger)
     app.UseSwaggerUI();
 }
 
+//launcher version route
 app.UseStaticFiles(new StaticFileOptions
 {
     ServeUnknownFileTypes = true,
@@ -80,7 +76,7 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
     RequestPath = "/files",
 });
-//launcher version
+//launcher version route
 app.UseStaticFiles(new StaticFileOptions
 {
     ServeUnknownFileTypes = true,
