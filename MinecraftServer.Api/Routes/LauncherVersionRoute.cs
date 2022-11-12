@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Exceptions;
 using MinecraftServer.Api.Models;
 using MinecraftServer.Api.MongoEntities;
 using MinecraftServer.Api.Services;
@@ -14,24 +15,18 @@ namespace MinecraftServer.Api.Routes
         //há um metódo pra usar o BaseUrl. Vou ignorar por agora.
         public static void CriarRota(this WebApplication app)
         {
-            //HttpRequest request, 
-            app.MapPost(BaseUrl + "/upload/{versionTag}/{name}", [Authorize] async (Stream body, [FromRoute] string versionTag, [FromRoute] string name, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            app.MapPost(BaseUrl + "/upload/{versionTag}", [Authorize] async (Stream body, [FromRoute] string versionTag, [FromHeader(Name = "X-File-Name")] string name, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
             {
-
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, versionTag);
                 string latestPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, "latest");
-                //using (Stream stream = new MemoryStream())
-                //{
-                //    body.CopyTo(stream);
-                //}
-                //  var file = request.Form.Files.First();
+
                 Stream stream = new MemoryStream();
-                body.CopyTo(stream);
+                await body.CopyToAsync(stream);
                 FormFile file = new FormFile(stream, 0, stream.Length, name, name);
 
                 var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
                 var recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
-                var recentLauncherVersion = new Version(recentLauncher?.Version ?? versionTag);
+                var recentLauncherVersion = new Version(recentLauncher?.Version ?? "0.0.0");
                 var currentVersion = new Version(versionTag);
                 var versionCompare = currentVersion.CompareTo(recentLauncherVersion);
 
@@ -44,51 +39,23 @@ namespace MinecraftServer.Api.Routes
                         Arch = "x64",
                         Name = name,
                         Version = versionTag,
-                        Files = new List<string>() { file.FileName },
                         System = "other"
                     };
                     await mongoDbService.CreateAsync(launcherModel);
-
-                    //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
-                    //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
-                }
-                else
-                {
-                    firstLauncher.Files.Add(file.Name);
-                    await mongoDbService.UpdateAsync(ObjectId.Parse(firstLauncher.Id), firstLauncher);
+                    if (versionCompare == 1 && Directory.Exists(latestPath))
+                    {
+                        Directory.Delete(latestPath, true);
+                    }
                 }
 
-                if (versionCompare == 1)
-                {
-                    CreateFolderPath(path);
-                    ///copio todos os arquivos enviados para a pasta versão
-                    MoveFileTest(path, file);
+                CreateFolderPath(path);
+                MoveFileTest(path, file);
 
+                if (versionCompare >= 0)
+                {
                     CreateFolderPath(latestPath);
                     MoveFileTest(latestPath, file);
                 }
-                if (versionCompare == 0)
-                {
-                    //recrio a pasta
-                    RecreateFolderPath(path);
-                    ///copio todos os arquivos enviados para a pasta versão
-                    MoveFileTest(path, file);
-
-                    RecreateFolderPath(latestPath);
-                    MoveFileTest(latestPath, file);
-                }
-
-                //launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
-                //recentLauncher = launcherVersions.ToList().OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
-
-                //if (launcherVersions.Count == 0)
-                //{
-                //    CreateFolderPath(latestPath);
-                //    MoveFileTest(latestPath, file);
-                //    return Results.Ok();
-                //}
-
-
 
                 return Results.Ok();
 
@@ -107,33 +74,55 @@ namespace MinecraftServer.Api.Routes
                         Directory.CreateDirectory(folderPath);
                     }
                 }
-                void RecreateFolderPath(string folderPath)
-                {
-                    ///se for enviado novamente, removo a pasta com essa versão e removo todos os arquivos.
-                    if (Directory.Exists(folderPath))
-                    {
-                        Directory.Delete(folderPath, true);
-                    }
-                    /// se a versão não existir, crio uma pasta para ela.
-                    if (Directory.Exists(folderPath) == false)
-                    {
-                        Directory.CreateDirectory(folderPath);
-                    }
-                }
 
             }).WithTags("Launcher Version")
             .Produces(200);
 
 
 
-            //app.MapGet(BaseUrl + "/latest", async ([FromServices] LauncherVersionMongoDBService mongoDbService) =>
-            //{
-            //    var launcherVersion = await mongoDbService.GetAsync<LauncherVersionModel>();
-            //    var lastVersion = launcherVersion.OrderByDescending(x => new Version(x.Version)).FirstOrDefault();
+            app.MapDelete(BaseUrl + "/remove/{versionTag}", [Authorize] async (Stream body, [FromRoute] string versionTag, [FromServices] IOptions<ApiConfig> apiConfig, [FromServices] LauncherVersionMongoDBService mongoDbService) =>
+            {
+                var pathDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion);
+                var latestDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.CaminhoLauncherVersion, "latest");
+                var pathDirWithVersion = Path.Combine(pathDir, versionTag);
 
+                var launcherVersions = await mongoDbService.GetAsync<LauncherVersionModel>();
+                var recentLauncherList = launcherVersions.OrderByDescending(x => new Version(x.Version)).ToList();//
+                var recentLauncherVersion = new Version(recentLauncherList?.First().Version ?? "0.0.0");
+                var currentVersion = new Version(versionTag);
+                var versionCompare = currentVersion.CompareTo(recentLauncherVersion);
+                var firstLauncher = await mongoDbService.GetAsync<LauncherVersionModel>("version", versionTag);
+                if (firstLauncher == null)
+                {
+                    throw new CasimiroException(ExceptionType.Negocio, "Versão não encontrada.");
+                }
 
-            //    return Results.Ok();
-            //}).WithTags("Launcher Version");
+                var launcherVersionId = ObjectId.Parse(firstLauncher.Id);
+                await mongoDbService.RemoveAsync(launcherVersionId);
+
+                if (versionCompare >= 0 && Directory.Exists(latestDir))
+                {
+                    foreach (var file in Directory.GetFiles(latestDir))
+                    {
+                        File.Delete(file);
+                    }
+
+                    var lastLauncher = recentLauncherList[1];
+                    var originPath = Path.Combine(pathDir, lastLauncher.Version);
+
+                    foreach (var file in Directory.GetFiles(originPath))
+                    {
+                        File.Copy(file, file.Replace(originPath, latestDir), true);
+                    }
+
+                }
+                if (Directory.Exists(pathDirWithVersion))
+                {
+                    Directory.Delete(pathDirWithVersion, true);
+                }
+
+                return Results.Ok();
+            }).WithTags("Launcher Version");
 
 
 

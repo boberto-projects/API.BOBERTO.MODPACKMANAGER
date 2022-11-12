@@ -16,11 +16,6 @@ namespace MinecraftServer.Api.MongoEntities
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
-        [BsonElement("files")]
-        //[BsonRepresentation(BsonType.Array)]
-        [JsonPropertyName("files")]
-        public List<string> Files { get; set; }
-
         [BsonElement("system")]
         [BsonRepresentation(BsonType.String)]
         [JsonPropertyName("system")]

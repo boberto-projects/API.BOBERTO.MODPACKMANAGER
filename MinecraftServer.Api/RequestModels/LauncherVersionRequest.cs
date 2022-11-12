@@ -5,11 +5,14 @@ namespace MinecraftServer.Api.RequestModels
 {
     public class LauncherVersionRequest
     {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
-        [JsonPropertyName("files")]
-        public List<string> Files { get; set; }
+        //[JsonPropertyName("files")]
+        //public List<string> Files { get; set; }
 
         [JsonPropertyName("system")]
         public string System { get; set; }
@@ -20,7 +23,7 @@ namespace MinecraftServer.Api.RequestModels
         {
             return new LauncherVersionModel()
             {
-                Files = this.Files,
+                Name = this.Name,
                 Arch = this.Arch,
                 System = this.System,
                 Version = this.Version
