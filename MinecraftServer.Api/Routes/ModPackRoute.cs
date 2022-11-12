@@ -79,7 +79,9 @@ namespace MinecraftServer.Api.Routes
 
             }).WithTags("ModPack Manager");
 
-            app.MapPut(BaseUrl + "/update/{id}", [Authorize] async (ObjectId id, [FromBody] Dictionary<string, object> request, [FromServices] ModPackMongoDBService mongoDbService) =>
+            app.MapPut(BaseUrl + "/update/{id}", [Authorize] async (ObjectId id, [FromBody] Dictionary<string, object> request,
+                [FromServices] IOptions<ApiConfig> apiConfig,
+                [FromServices] ModPackMongoDBService mongoDbService) =>
             {
                 var modpack = await mongoDbService.GetAsync<ModPackModel>(id);
 
@@ -87,19 +89,20 @@ namespace MinecraftServer.Api.Routes
                 {
                     throw new CasimiroException(ExceptionType.Validacao, "MODPACK não encontrado.");
                 }
-                var directory = request.TryGetValue("directory", out object modpackDirObject);
-                var isNewModPackDir = modpackDirObject.ToString().Contains(modpack.Directory) == false;
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.ModPackDir);
+                string modPackDirectory = Path.Combine(path, modpack.Directory);
+                var directory = request.TryGetValue("directory", out object newModPackDirObject);
+                var isNewModPackDir = directory && newModPackDirObject.ToString().Contains(modpack.Directory) == false;
 
-                if (directory)
-                {
-
-
-                }
-
-
-
+                mongoDbService.InitTransaction();
                 await mongoDbService.UpdateKeyPairAsync(id, request);
-
+                if (isNewModPackDir)
+                {
+                    string newModPackDirectory = Path.Combine(path, newModPackDirObject.ToString());
+                    Utils.CopyDirectory(modPackDirectory, newModPackDirectory, true);
+                    Directory.Delete(modPackDirectory, true);
+                }
+                mongoDbService.SaveChanges();
                 return Results.Ok();
             }).WithTags("ModPack Manager");
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MinecraftServer.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -11,8 +12,7 @@ namespace MinecraftServer.Api.Services
         private readonly IMongoCollection<BsonDocument> _mongoDBConnection;
         private readonly MongoClient _mongoClient;
         private readonly IMongoDatabase _mongoDatabase;
-        private bool isTransaction { get; set; }
-        private List<Task> Changes { get; set; }
+        private TransactionModel _transaction;
         public abstract string CollectionName { get; }
 
         protected BaseMongoDBService(IOptions<MongoDatabaseSettings> mongoDBSettings)
@@ -24,6 +24,8 @@ namespace MinecraftServer.Api.Services
             _mongoDatabase = _mongoClient.GetDatabase(config.DatabaseName);
 
             _mongoDBConnection = _mongoDatabase.GetCollection<BsonDocument>(config.CollectionName);
+
+            this._transaction = new TransactionModel();
         }
 
         public virtual async Task<List<T>> GetAsync<T>()
@@ -91,7 +93,14 @@ namespace MinecraftServer.Api.Services
 
             update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", changesDocument));
 
-            await _mongoDBConnection.UpdateOneAsync(filtro, update, updateOptions);
+            var transactionRunning = _transaction.IsTransaction();
+            var task = Task.Run(() => _mongoDBConnection.UpdateOneAsync(filtro, update, updateOptions));
+            if (transactionRunning)
+            {
+                _transaction.Commit(task);
+                return false;
+            }
+            await task;
 
             return true;
         }
@@ -103,9 +112,19 @@ namespace MinecraftServer.Api.Services
             return true;
         }
 
-        public virtual async Task<bool> InitTransaction()
+        public virtual void InitTransaction()
         {
-            this.isTransaction = true;
+            this._transaction.StartTransaction();
+        }
+
+        public virtual void AbortTransaction()
+        {
+            this._transaction.Abort();
+        }
+
+        public virtual void SaveChanges()
+        {
+            this._transaction.SaveChanges();
         }
     }
 }

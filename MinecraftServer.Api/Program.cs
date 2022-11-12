@@ -66,30 +66,30 @@ app.UseStaticFiles(new StaticFileOptions
 {
     ServeUnknownFileTypes = true,
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
-    RequestPath = "/files",
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("ModPackDir").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = config.GetSection("ApiConfig").GetSection("ModPackUrl").Value,
 });
 
 app.UseDirectoryBrowser(new DirectoryBrowserOptions
 {
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoModPacks").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
-    RequestPath = "/files",
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("ModPackDir").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = config.GetSection("ApiConfig").GetSection("ModPackUrl").Value,
 });
 //launcher version route
 app.UseStaticFiles(new StaticFileOptions
 {
     ServeUnknownFileTypes = true,
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
-    RequestPath = "/launcher",
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("LauncherVersionDir").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = config.GetSection("ApiConfig").GetSection("LauncherVersionUrl").Value,
 });
 
 app.UseDirectoryBrowser(new DirectoryBrowserOptions
 {
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("CaminhoLauncherVersion").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
-    RequestPath = "/launcher",
+           Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.GetSection("ApiConfig").GetSection("LauncherVersionDir").Value), Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None),
+    RequestPath = config.GetSection("ApiConfig").GetSection("LauncherVersionUrl").Value,
 });
 
 app.Run();

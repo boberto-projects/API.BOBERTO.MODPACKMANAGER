@@ -8,12 +8,13 @@
         public void StartTransaction()
         {
             this.isTransaction = true;
+            this.Changes = new List<Task>();
         }
         public void Commit(Task task)
         {
             Changes.Add(task);
         }
-        public void Finalize()
+        public bool SaveChanges()
         {
             Task t = Task.WhenAll(Changes);
             try
@@ -22,15 +23,23 @@
             }
             catch { }
 
-            //if (t.Status == TaskStatus.RanToCompletion)
-            //    Console.WriteLine("All ping attempts succeeded.");
-            //else if (t.Status == TaskStatus.Faulted)
-            //    Console.WriteLine("{0} ping attempts failed", failed);
+            if (t.Status == TaskStatus.Faulted)
+                return false;
+
+            this.Abort();
+
+            return true;
+        }
+
+        public bool IsTransaction()
+        {
+            return this.isTransaction;
         }
 
         public void Abort()
         {
-
+            this.isTransaction = false;
+            this.Changes.Clear();
         }
 
     }

@@ -50,7 +50,7 @@ namespace MinecraftServer.Api
         /// <param name="destinationDir"></param>
         /// <param name="recursive"></param>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+        public static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
         {
             // Get information about the source directory
             var dir = new DirectoryInfo(sourceDir);
@@ -69,7 +69,7 @@ namespace MinecraftServer.Api
             foreach (FileInfo file in dir.GetFiles())
             {
                 string targetFilePath = Path.Combine(destinationDir, file.Name);
-                file.CopyTo(targetFilePath);
+                file.CopyTo(targetFilePath, true);
             }
 
             // If recursive and copying subdirectories, recursively call this method
