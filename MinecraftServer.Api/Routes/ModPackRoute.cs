@@ -67,13 +67,13 @@ namespace MinecraftServer.Api.Routes
                 }
 
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.ModPackDir);
-                string outputPath = Path.Combine(path, modpack.Directory);
+                string modpackDir = Path.Combine(path, modpack.Directory);
 
                 mongoDbService.InitTransaction();
 
-                if (Directory.Exists(path))
+                if (Directory.Exists(modpackDir))
                 {
-                    Directory.Delete(path, true);
+                    Directory.Delete(modpackDir, true);
                 }
 
                 await mongoDbService.RemoveAsync(id);
