@@ -69,12 +69,15 @@ namespace MinecraftServer.Api.Routes
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiConfig.Value.ModPackDir);
                 string outputPath = Path.Combine(path, modpack.Directory);
 
+                mongoDbService.InitTransaction();
+
                 if (Directory.Exists(path))
                 {
                     Directory.Delete(path, true);
                 }
 
                 await mongoDbService.RemoveAsync(id);
+                mongoDbService.SaveChanges();
                 return Results.Ok();
 
             }).WithTags("ModPack Manager");
